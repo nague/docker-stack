@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-from DockerStack import DockerStack
+from dockerstack.DockerStack import DockerStack
 
 setup(
     name='dockerstack',
