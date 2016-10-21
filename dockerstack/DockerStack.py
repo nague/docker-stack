@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 from git import Repo
+from Docker import Docker
 
 
 class DockerStack(argparse.Action):
@@ -11,7 +12,7 @@ class DockerStack(argparse.Action):
     VERSION = 1.0
     PROJECT_NAME = 'Docker Stack'
     PROJECTS_DIRECTORY = './projects/'
-    TEMPLATES_DIRECTORY = './templates/'
+    CONFIG_FILE = 'docker-stack.ini'
     LOG = logging.getLogger(__name__)
 
     # Magic call method
@@ -58,7 +59,7 @@ class DockerStack(argparse.Action):
             print 'You have 2 possibilities (Cloning a Git repository or create a symlink from existing sources).'
             cloning = raw_input('Do you want have project sources? (Y/n): ').lower() or 'y'
             if cloning is 'y':
-                source = raw_input('Please provide the full path of your sources directory: ')
+                source = raw_input("Please provide the full path of your sources directory (e.g. 'pwd'): ")
                 validation = raw_input(
                     "We are about to create a symlink from '%s' to '%s', do you accept (Y/n): " % (
                         source, os.path.join(project_directory, 'www'))).lower() or 'y'
@@ -76,7 +77,13 @@ class DockerStack(argparse.Action):
                     self.LOG.info(
                         'Cloning Git repository from %s to %s' % (source, os.path.join(project_directory, 'www')))
 
-        # 4. Generate Docker files
+        # 4. Read 'docker-stack.ini' file if exists
+        if os.path.exists(os.path.join(project_directory, 'www', self.CONFIG_FILE)):
+            pass
+
+        # 5. Generate Docker files
+        docker = Docker(project_directory)
+        docker.build()
 
     # Remove one or more projects
     def remove(self):
