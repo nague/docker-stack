@@ -29,7 +29,7 @@ def main():
     if docker_stack.args.s:
         docker_stack.start()
     elif docker_stack.args.b:
-        pass
+        docker_stack.build()
     elif docker_stack.args.r:
         pass
     elif docker_stack.args.o:
