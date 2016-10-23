@@ -33,7 +33,7 @@ def main():
     elif docker_stack.args.r:
         pass
     elif docker_stack.args.o:
-        pass
+        docker_stack.stop()
     elif docker_stack.args.ps:
         pass
     elif docker_stack.args.rm:
