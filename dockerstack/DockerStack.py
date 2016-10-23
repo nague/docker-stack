@@ -5,6 +5,7 @@ import shutil
 from git import Repo
 from Docker import Docker
 from DockerStackConfig import DockerStackConfig
+from DockerCompose import DockerCompose
 
 
 class DockerStack(argparse.Action):
@@ -13,7 +14,7 @@ class DockerStack(argparse.Action):
     VERSION = 1.0
     PROJECT_NAME = 'Docker Stack'
     PROJECT_MAINTAINER = 'Kaliop Canada'
-    PROJECTS_DIRECTORY = './projects/'
+    PROJECTS_DIRECTORY = os.path.join(os.getcwd(), 'projects')
     TEMPLATES_DIRECTORY = './templates/'
     SITE_DIRECTORY = 'www'
     CONFIG_FILE = 'docker-stack.ini'
@@ -37,13 +38,18 @@ class DockerStack(argparse.Action):
             os.makedirs(self.PROJECTS_DIRECTORY)
             self.LOG.info('Create \'projects\' directory')
 
+        # DockerCompose
+        self.docker_compose = DockerCompose()
+
         super(DockerStack, self).__init__(self, parser)
 
     # Start building a new project
     def start(self):
         # 1. Build new project
-        self.build()
+        project = self.build()
         # 2. Start DockerCompose
+        os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
+        print self.docker_compose.start(project)
 
     # Building process
     def build(self):
@@ -83,7 +89,7 @@ class DockerStack(argparse.Action):
                         'Cloning Git repository from %s to %s' % (
                             source, os.path.join(project_directory, self.SITE_DIRECTORY)))
 
-        # 4. Read 'docker-stack.ini' file if exists
+        # 4. Read 'docker-stack.ini' file if exists otherwise generate it
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
         docker_stack_config = DockerStackConfig(config_path)
         if not os.path.exists(config_path):
@@ -93,39 +99,71 @@ class DockerStack(argparse.Action):
             # docker_stack_config.build_php_ini(os.path.join('php', 'php.ini'),
             #                                   os.path.join(project_directory, self.SITE_DIRECTORY, 'conf', 'php',
             #                                                'php.ini'))
+        config = docker_stack_config.parse_config()
 
-        # 5. Generate Docker files
+        # 5. Database
+        db_dir = os.path.join(project_directory, 'db')
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir)
+            print "Directory '%s' created successfully!" % db_dir
+        db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
+        db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
+        if os.path.exists(db_source_file) and not os.path.exists(db_destination_file):
+            os.symlink(
+                db_source_file,
+                db_destination_file
+            )
+            print "Database '%s' mapped successfully from '%s' to '%s'" % (
+                os.path.basename(config['db']),
+                db_source_file,
+                db_destination_file
+            )
+
+        # 6. Generate 'Dockerfile'
         docker = Docker(project_directory)
-        destination = os.path.join(project_directory, self.SITE_DIRECTORY, 'Dockerfile')
+        destination = os.path.join(project_directory, 'Dockerfile')
         if not os.path.exists(destination):
-            config = docker_stack_config.parse_config()
             config['docker']['maintainer'] = self.PROJECT_MAINTAINER
             docker.build(
                 os.path.join('docker', 'Dockerfile'),
-                os.path.join(project_directory, self.SITE_DIRECTORY, 'Dockerfile'),
+                os.path.join(project_directory, 'Dockerfile'),
                 config
             )
+        else:
+            print 'Dockerfile already exists, do nothing!'
+
+        # 7. Generate 'docker-compose.yml'
+
+        return project
 
     # Remove one or more projects
     def remove(self):
+        project = self.args.rm
         # Remove all projects
-        if self.args.rm is 1:
+        if project is 1:
             shutil.rmtree(self.PROJECTS_DIRECTORY)
             print "All projects removed successfully"
             self.LOG.info('Deleting all projects')
-        # Remove projects
-        elif isinstance(self.args.rm, list):
-            for project in self.args.rm:
+        # Remove multiple projects
+        elif isinstance(project, list):
+            for project in project:
                 if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, project)):
                     shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, project))
                     print "Project '%s' removed successfully" % project
                     self.LOG.info('Deleting %s project' % project)
         # Remove single project
         else:
-            if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, self.args.rm)):
-                shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, self.args.rm))
-                print "Project '%s' removed successfully" % self.args.rm
-                self.LOG.info('Deleting %s project' % self.args.rm)
+            if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, project)):
+                # Stop containers
+                os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
+                print self.docker_compose.stop(project)
+                print self.docker_compose.rm(project)
+                # Remove project directory
+                shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, project))
+                print "Project '%s' removed successfully" % project
+                self.LOG.info('Deleting %s project' % project)
+            else:
+                print "The project '%s' does not exists!" % project
 
     # Show version number
     def version(self):

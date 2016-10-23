@@ -1,0 +1,9 @@
+version: '2'
+services:
+    web:
+      restart: 'yes'
+      build: .
+      ports:
+        - "{{port}}:80"
+
+{{services}}

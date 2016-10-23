@@ -9,6 +9,7 @@ class DockerStackConfig(object):
 
     config_parser = ConfigParser.ConfigParser()
 
+    # Constructor
     def __init__(self, path):
         self.config_path = path
         self.env = Environment(loader=PackageLoader('DockerStack', 'templates'))
@@ -21,12 +22,19 @@ class DockerStackConfig(object):
         }
         self.config_parser.read(self.config_path)
 
+        # Main
+        array['db'] = self.config_section_map('db')['path']
+
+        # Dockerfile variables
         array['docker']['image'] = self.config_section_map('php')['version']
         array['docker']['vhost'] = self.config_section_map('webserver')['vhost']
         array['docker']['site'] = os.path.basename(array['docker']['vhost'])
         array['docker']['libs'] = string.split(self.config_section_map('general')['libs'], ',')
         array['docker']['extensions'] = string.split(self.config_section_map('php')['extensions'], ',')
         array['docker']['type'] = self.config_section_map('general')['type']
+
+        # docker-compose.yml variables
+        array['docker-compose']['port'] = self.config_section_map('webserver')['port']
 
         return array
 

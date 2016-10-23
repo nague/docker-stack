@@ -1,0 +1,7 @@
+    smtp:
+      image: namshi/docker-smtp
+      ports:
+        - "25"
+      environment:
+        GMAIL_USER: nicogommen@gmail.com
+        GMAIL_PASSWORD: kaliopgmail

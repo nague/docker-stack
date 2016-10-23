@@ -1,0 +1,13 @@
+    mysql:
+      image: {{image}}
+      ports:
+        - "{{port}}"
+      environment:
+        MYSQL_USER: dev
+        MYSQL_PASSWORD: kaliop
+        MYSQL_DATABASE: sosdevoi_symfony
+        MYSQL_ROOT_PASSWORD: kaliop
+        MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      restart: always
+      volumes:
+        - ./db:/docker-entrypoint-initdb.d
