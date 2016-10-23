@@ -3,7 +3,7 @@ import os
 from jinja2 import Environment, PackageLoader
 
 
-class Docker(object):
+class Builder(object):
 
     config_parser = ConfigParser.ConfigParser()
 
@@ -13,22 +13,31 @@ class Docker(object):
         self.env = Environment(loader=PackageLoader('DockerStack', 'templates'))
 
     # Build 'Dockerfile'
-    def build(self, source, destination, config):
+    def build_dockerfile(self, source, destination, config):
         tmpl = self.env.get_template(source)
 
         # Arguments to pass to template
-        args = config['docker']
-        args['extra'] = ''
+        config['extra'] = ''
 
         # Check extra template part
-        extra = os.path.join('./templates', 'extra', config['docker']['type'], 'Dockerfile')
+        extra = os.path.join('./templates', 'extra', config['type'], 'Dockerfile')
         if os.path.exists(extra):
             e = open(extra)
-            args['extra'] = e.read()
+            config['extra'] = e.read()
             pass
 
         # Write final file including variables
         with open(destination, 'w') as f:
-            f.write(tmpl.render(**args))
+            f.write(tmpl.render(**config))
 
         print 'Dockerfile successfully created!'
+
+    # Build 'docker-compose.yml'
+    def build_docker_compose(self, source, destination, config):
+        tmpl = self.env.get_template(source)
+        print config
+        # Write final file including variables
+        with open(destination, 'w') as f:
+            f.write(tmpl.render(**config))
+
+        print 'docker-compose.yml successfully created!'

@@ -1,5 +1,5 @@
     smtp:
-      image: namshi/docker-smtp
+      image: namshi/smtp
       ports:
         - "25"
       environment:

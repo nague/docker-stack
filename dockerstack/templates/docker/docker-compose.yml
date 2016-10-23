@@ -4,6 +4,10 @@ services:
       restart: 'yes'
       build: .
       ports:
-        - "{{port}}:80"
+        {% if port %}- "{{port}}:80"{% else %}- "80"{% endif %}
+      links:{% for service, alias in links.items() %}
+        - {{service}}:{{alias}}{% endfor %}
 
-{{services}}
+{% for key, value in services.items() %}
+{% include '/services/%s.yml' % key %}
+{% endfor %}

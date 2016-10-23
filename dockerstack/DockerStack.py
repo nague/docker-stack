@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 from git import Repo
-from Docker import Docker
+from Builder import Builder
 from DockerStackConfig import DockerStackConfig
 from DockerCompose import DockerCompose
 
@@ -18,6 +18,8 @@ class DockerStack(argparse.Action):
     TEMPLATES_DIRECTORY = './templates/'
     SITE_DIRECTORY = 'www'
     CONFIG_FILE = 'docker-stack.ini'
+    DOCKERFILE_FILE = 'Dockerfile'
+    DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     LOG = logging.getLogger(__name__)
 
     # Magic call method
@@ -120,21 +122,33 @@ class DockerStack(argparse.Action):
             )
 
         # 6. Generate 'Dockerfile'
-        docker = Docker(project_directory)
-        destination = os.path.join(project_directory, 'Dockerfile')
+        builder = Builder(project_directory)
+        destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
         if not os.path.exists(destination):
             config['docker']['maintainer'] = self.PROJECT_MAINTAINER
-            docker.build(
-                os.path.join('docker', 'Dockerfile'),
-                os.path.join(project_directory, 'Dockerfile'),
-                config
+            builder.build_dockerfile(
+                os.path.join('docker', self.DOCKERFILE_FILE),
+                destination,
+                config['docker']
             )
         else:
             print 'Dockerfile already exists, do nothing!'
 
         # 7. Generate 'docker-compose.yml'
+        destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
+        if not os.path.exists(destination):
+            builder.build_docker_compose(
+                os.path.join('docker', self.DOCKER_COMPOSE_FILE),
+                destination,
+                config['docker-compose']
+            )
 
         return project
+
+    # Stop one or more projects
+    def stop(self):
+        project = self.args.o
+        self.docker_compose.stop(project)
 
     # Remove one or more projects
     def remove(self):
@@ -146,11 +160,11 @@ class DockerStack(argparse.Action):
             self.LOG.info('Deleting all projects')
         # Remove multiple projects
         elif isinstance(project, list):
-            for project in project:
-                if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, project)):
-                    shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, project))
-                    print "Project '%s' removed successfully" % project
-                    self.LOG.info('Deleting %s project' % project)
+            for p in project:
+                if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, p)):
+                    shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, p))
+                    print "Project '%s' removed successfully" % p
+                    self.LOG.info("Deleting '%s' project" % p)
         # Remove single project
         else:
             if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, project)):

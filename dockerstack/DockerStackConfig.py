@@ -18,12 +18,17 @@ class DockerStackConfig(object):
     def parse_config(self):
         array = {
             'docker': {},
-            'docker-compose': {}
+            'docker-compose': {
+                'services': {},
+                'links': {}
+            }
         }
         self.config_parser.read(self.config_path)
+        general = self.config_section_map('general')
 
-        # Main
-        array['db'] = self.config_section_map('db')['path']
+        # Database path
+        if self.config_parser.has_option('general', 'db_path'):
+            array['db'] = general['db_path']
 
         # Dockerfile variables
         array['docker']['image'] = self.config_section_map('php')['version']
@@ -35,6 +40,9 @@ class DockerStackConfig(object):
 
         # docker-compose.yml variables
         array['docker-compose']['port'] = self.config_section_map('webserver')['port']
+        for k, v in self.config_section_map('services').items():
+            array['docker-compose']['links'][v] = self.config_section_map(k)['link']
+            array['docker-compose']['services'][v] = self.config_section_map(k)
 
         return array
 

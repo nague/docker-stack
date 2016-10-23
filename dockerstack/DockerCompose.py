@@ -21,6 +21,7 @@ class DockerCompose(object):
     def run(self):
         pass
 
+    # Remove services
     def rm(self, project):
         p = Popen(['/usr/bin/sudo', 'docker-compose', '-p', project, 'rm', '-f'], stdout=PIPE)
         return p.stdout.read()
