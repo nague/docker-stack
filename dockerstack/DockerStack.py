@@ -184,4 +184,4 @@ class DockerStack(argparse.Action):
 
     # Show version number
     def version(self):
-        print '%s version %s' % (self.PROJECT_NAME, self.VERSION)
+        print 'version %s' % self.VERSION
