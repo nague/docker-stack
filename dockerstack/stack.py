@@ -11,7 +11,7 @@ def parse_args():
     commands.add_argument('-s', nargs='?', const=1, type=str, help='Build and start a new project')
     commands.add_argument('-b', nargs='?', const=1, type=str, help='Build a new or existing project')
     commands.add_argument('-r', nargs='*', help="Run docker container(s), assuming files has been built")
-    commands.add_argument('-o', action='store_true', help='Stop docker container(s) for the current project')
+    commands.add_argument('-o', nargs='?', const=1, type=str, help='Stop docker container(s) for the current project')
     commands.add_argument('-ps', action='store_true', help='List all created projects')
     commands.add_argument('-rm', nargs='?', const=1, help='Remove one or more projects')
     commands.add_argument('-v', action='store_true', help='Display version number')

@@ -170,6 +170,7 @@ class DockerStack(argparse.Action):
     # Stop one or more projects
     def stop(self):
         project = self.args.o
+        os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
         self.docker_compose.stop(project)
 
     # Remove one or more projects
