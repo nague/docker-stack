@@ -20,6 +20,7 @@ class DockerStack(argparse.Action):
     CONFIG_FILE = 'docker-stack.ini'
     DOCKERFILE_FILE = 'Dockerfile'
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+    PHP_INI_FILE = 'php.ini'
     LOG = logging.getLogger(__name__)
 
     # Magic call method
@@ -49,6 +50,7 @@ class DockerStack(argparse.Action):
     def start(self):
         # 1. Build new project
         project = self.build()
+        print "\n"
         # 2. Start DockerCompose
         os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
         print self.docker_compose.start(project)
@@ -145,6 +147,18 @@ class DockerStack(argparse.Action):
                 config['docker-compose']
             )
             print "Creating 'docker-compose.yml' ... done\n"
+
+        # 8. Generate 'php.ini'
+        conf_php_path = os.path.join(project_directory, 'conf', 'php')
+        destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
+        if not os.path.exists(destination):
+            os.makedirs(conf_php_path)
+            builder.build_php_ini(
+                os.path.join('php', self.PHP_INI_FILE),
+                destination,
+                config['php']
+            )
+            print "Creating 'php.ini'... done"
 
         return project
 

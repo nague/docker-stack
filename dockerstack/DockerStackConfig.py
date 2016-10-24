@@ -7,6 +7,7 @@ from jinja2 import Environment, PackageLoader
 
 class DockerStackConfig(object):
 
+    DEFAULT_TIMEZONE = 'America/Montreal'
     config_parser = ConfigParser.ConfigParser()
 
     # Constructor
@@ -21,7 +22,8 @@ class DockerStackConfig(object):
             'docker-compose': {
                 'services': {},
                 'links': {}
-            }
+            },
+            'php': {}
         }
         self.config_parser.read(self.config_path)
         general = self.config_section_map('general')
@@ -43,6 +45,12 @@ class DockerStackConfig(object):
         for k, v in self.config_section_map('services').items():
             array['docker-compose']['links'][v] = self.config_section_map(k)['link']
             array['docker-compose']['services'][v] = self.config_section_map(k)
+
+        # php.ini variables
+        if self.config_parser.has_option('php', 'timezone'):
+            array['php']['timezone'] = self.config_section_map('php')['timezone']
+        else:
+            array['php']['timezone'] = self.DEFAULT_TIMEZONE
 
         return array
 
