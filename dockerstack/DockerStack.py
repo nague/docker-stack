@@ -89,7 +89,8 @@ class DockerStack(argparse.Action):
                         'Create symlink from %s to %s' % (source, os.path.join(project_directory, self.SITE_DIRECTORY)))
             else:
                 source = raw_input('Please provide a Git valid URL (http or ssh): ')
-                branch = raw_input('From witch branch do you want to clone the repository (default: master): ')
+                branch = raw_input(
+                    'From witch branch do you want to clone the repository (default: master): ') or 'master'
                 validation = raw_input(
                     "We are about to clone your repo '%s' from branch '%s', do you accept (Y/n): \n" % (
                         source, branch)).lower() or 'y'
