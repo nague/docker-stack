@@ -151,6 +151,7 @@ class DockerStack(argparse.Action):
             os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
             os.path.join(destination, config['docker']['site'])
         )
+        print "Copy virtual host file... done"
 
         # 8. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
