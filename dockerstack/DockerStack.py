@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import shutil
+import string
 from git import Repo
 from Builder import Builder
 from DockerStackConfig import DockerStackConfig
@@ -21,6 +22,7 @@ class DockerStack(argparse.Action):
     DOCKERFILE_FILE = 'Dockerfile'
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     PHP_INI_FILE = 'php.ini'
+    DEFAULT_LIBS = ['wget', 'git', 'curl', 'zip']
     LOG = logging.getLogger(__name__)
 
     # Magic call method
@@ -126,6 +128,7 @@ class DockerStack(argparse.Action):
         # 6. Generate 'Dockerfile'
         builder = Builder(project_directory)
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
+        config['docker']['libs'] += self.DEFAULT_LIBS
         if not os.path.exists(destination):
             config['docker']['maintainer'] = self.PROJECT_MAINTAINER
             builder.build_dockerfile(

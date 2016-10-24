@@ -13,12 +13,8 @@ COPY {{vhost}} /etc/apache2/sites-available/
 # Install lib dependencies
 RUN apt-get update && \
     apt-get install -y \
-		{% for lib in libs %}{{lib}}\
-        {% endfor %}wget \
-        git \
-        curl \
-        vim
-
+		{% for lib in libs %}{{lib}}{% if not loop.last %} \{% endif %}
+        {% endfor %}
 # Install and configure PHP extensions
 RUN docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd && \
     docker-php-ext-configure mysqli --with-mysqli=mysqlnd && \
