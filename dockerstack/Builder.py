@@ -15,13 +15,19 @@ class Builder(object):
 
         # Arguments to pass to template
         args['extra'] = ''
-
         # Check extra template part
         extra = os.path.join('./templates', 'extra', args['type'], 'Dockerfile')
         if os.path.exists(extra):
             e = open(extra)
             args['extra'] = e.read()
-            pass
+
+        # PHP ext configure
+        args['configure'] = []
+        for ext in args['extensions']:
+            ext_configure = os.path.join('./templates', 'php', 'ext-configure', 'Dockerfile-' + ext)
+            if os.path.exists(ext_configure):
+                c = open(ext_configure)
+                args['configure'] += [c.read()]
 
         # Write final file including variables
         with open(destination, 'w') as f:

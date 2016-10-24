@@ -13,13 +13,12 @@ COPY {{vhost}} /etc/apache2/sites-available/
 # Install lib dependencies
 RUN apt-get update && \
     apt-get install -y \
-		{% for lib in libs %}{{lib}}{% if not loop.last %} \{% endif %}
-        {% endfor %}
+		{% for lib in libs %}{{lib}} {% endfor %}
+
 # Install and configure PHP extensions
-RUN docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd && \
-    docker-php-ext-configure mysqli --with-mysqli=mysqlnd && \
-    {% for ext in extensions %}docker-php-ext-install {{ext}}{% if not loop.last %} && \{% endif %}
-	{% endfor %}
+{% if configure %}RUN {% for ext in configure %}{{ext}} {% if not loop.last %}&& {% endif %}{% endfor %}{% endif %}
+{% if extensions %}RUN {% for ext in extensions %}docker-php-ext-install {{ext}} {% if not loop.last %}&& {% endif %}{% endfor %}{% endif %}
+
 {{extra}}
 
 # Enable site Apache2

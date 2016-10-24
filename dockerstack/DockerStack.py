@@ -84,6 +84,7 @@ class DockerStack(argparse.Action):
                         source, os.path.join(project_directory, self.SITE_DIRECTORY))).lower() or 'y'
                 if validation is 'y':
                     os.symlink(source, os.path.join(project_directory, self.SITE_DIRECTORY))
+                    print "Creating symlink... done\n"
                     self.LOG.info(
                         'Create symlink from %s to %s' % (source, os.path.join(project_directory, self.SITE_DIRECTORY)))
             else:
@@ -94,6 +95,7 @@ class DockerStack(argparse.Action):
                         source, branch)).lower() or 'y'
                 if validation is 'y':
                     Repo.clone_from(source, os.path.join(project_directory, self.SITE_DIRECTORY))
+                    print "Cloning Git repository... done\n"
                     self.LOG.info(
                         'Cloning Git repository from %s to %s' % (
                             source, os.path.join(project_directory, self.SITE_DIRECTORY)))
@@ -118,7 +120,7 @@ class DockerStack(argparse.Action):
         db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
         db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
         if os.path.exists(db_source_file) and not os.path.exists(db_destination_file):
-            print "Database file '%s' found\n" % os.path.basename(config['db'])
+            print "Database file '%s' found" % os.path.basename(config['db'])
             os.symlink(
                 db_source_file,
                 db_destination_file
