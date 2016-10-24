@@ -12,8 +12,8 @@ class DockerStack(argparse.Action):
     # Define properties/constants
     args = []
     VERSION = 1.0
-    PROJECT_NAME = 'Docker Stack'
-    PROJECT_MAINTAINER = 'Kaliop Canada'
+    PROJECT_NAME = '[DSK] Docker Stack'
+    PROJECT_MAINTAINER = 'Kaliop'
     PROJECTS_DIRECTORY = os.path.join(os.getcwd(), 'projects')
     TEMPLATES_DIRECTORY = './templates/'
     SITE_DIRECTORY = 'www'
@@ -33,7 +33,7 @@ class DockerStack(argparse.Action):
         logging.basicConfig(filename='stack.log', level=logging.DEBUG)
 
         # Welcome message when stating app
-        print "========= Welcome to %s by Kaliop project ==========\n" % self.PROJECT_NAME
+        print "========= Welcome to %s by %s  ==========\n" % (self.PROJECT_NAME, self.PROJECT_MAINTAINER)
 
         # Create 'projects' directory when initializing app
         if not os.path.exists(self.PROJECTS_DIRECTORY):
@@ -68,12 +68,15 @@ class DockerStack(argparse.Action):
 
         # 3. Symlink existing sources or Git clone project to self.SITE_DIRECTORY directory
         if not os.path.exists(os.path.join(project_directory, self.SITE_DIRECTORY)):
-            print 'You have 2 possibilities (Cloning a Git repository or create a symlink from existing sources).'
-            cloning = raw_input('Do you want have project sources? (Y/n): ').lower() or 'y'
-            if cloning is 'y':
-                source = raw_input("Please provide the full path of your sources directory (e.g. 'pwd'): ")
+            print 'Please choose one of the following:'
+            print ' 1. Create a Symlink from existing sources (default)'
+            print ' 2. Cloning a Git repository'
+            cloning = raw_input('Enter your choose now: ') or 1
+            print "\n"
+            if int(cloning) is 1:
+                source = raw_input("Please provide the full path of your sources directory (e.g. using 'pwd'):\n")
                 validation = raw_input(
-                    "We are about to create a symlink from '%s' to '%s', do you accept (Y/n): " % (
+                    "We are about to create a symlink from '%s' to '%s', do you accept (Y/n): \n" % (
                         source, os.path.join(project_directory, self.SITE_DIRECTORY))).lower() or 'y'
                 if validation is 'y':
                     os.symlink(source, os.path.join(project_directory, self.SITE_DIRECTORY))
@@ -83,7 +86,7 @@ class DockerStack(argparse.Action):
                 source = raw_input('Please provide a Git valid URL (http or ssh): ')
                 branch = raw_input('From witch branch do you want to clone the repository (default: master): ')
                 validation = raw_input(
-                    "We are about to clone your repo '%s' from branch '%s', do you accept (Y/n): " % (
+                    "We are about to clone your repo '%s' from branch '%s', do you accept (Y/n): \n" % (
                         source, branch)).lower() or 'y'
                 if validation is 'y':
                     Repo.clone_from(source, os.path.join(project_directory, self.SITE_DIRECTORY))
@@ -107,19 +110,16 @@ class DockerStack(argparse.Action):
         db_dir = os.path.join(project_directory, 'db')
         if not os.path.exists(db_dir):
             os.makedirs(db_dir)
-            print "Directory '%s' created successfully!" % db_dir
+            print "Creating directory '%s' ... done\n" % os.path.join('projects', project, 'db')
         db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
         db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
         if os.path.exists(db_source_file) and not os.path.exists(db_destination_file):
+            print "Database file '%s' found\n" % os.path.basename(config['db'])
             os.symlink(
                 db_source_file,
                 db_destination_file
             )
-            print "Database '%s' mapped successfully from '%s' to '%s'" % (
-                os.path.basename(config['db']),
-                db_source_file,
-                db_destination_file
-            )
+            print "Mapping database ... done\n"
 
         # 6. Generate 'Dockerfile'
         builder = Builder(project_directory)
@@ -131,8 +131,9 @@ class DockerStack(argparse.Action):
                 destination,
                 config['docker']
             )
+            print "Creating 'Dockerfile' ... done\n"
         else:
-            print 'Dockerfile already exists, do nothing!'
+            print "Dockerfile already exists, do nothing!\n"
 
         # 7. Generate 'docker-compose.yml'
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
@@ -140,8 +141,10 @@ class DockerStack(argparse.Action):
             builder.build_docker_compose(
                 os.path.join('docker', self.DOCKER_COMPOSE_FILE),
                 destination,
+                os.path.join(self.TEMPLATES_DIRECTORY, 'services'),
                 config['docker-compose']
             )
+            print "Creating 'docker-compose.yml' ... done\n"
 
         return project
 
@@ -163,21 +166,21 @@ class DockerStack(argparse.Action):
             for p in project:
                 if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, p)):
                     shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, p))
-                    print "Project '%s' removed successfully" % p
+                    print "Removing '%s' project ... done" % p
                     self.LOG.info("Deleting '%s' project" % p)
         # Remove single project
+        elif os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, project)):
+            # Stop containers
+            os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
+            print self.docker_compose.stop(project)
+            print self.docker_compose.rm(project)
+            # Remove project directory
+            shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, project))
+            print "Removing '%s' project ... done" % project
+            self.LOG.info('Deleting %s project' % project)
         else:
-            if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, project)):
-                # Stop containers
-                os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
-                print self.docker_compose.stop(project)
-                print self.docker_compose.rm(project)
-                # Remove project directory
-                shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, project))
-                print "Project '%s' removed successfully" % project
-                self.LOG.info('Deleting %s project' % project)
-            else:
-                print "The project '%s' does not exists!" % project
+            print "No such project: '%s'" % project
+            self.LOG.error("Error response from app: No such project: %s" % project)
 
     # Show version number
     def version(self):

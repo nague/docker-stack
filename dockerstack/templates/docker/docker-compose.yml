@@ -1,13 +1,12 @@
 version: '2'
 services:
-    web:
-      restart: 'yes'
-      build: .
-      ports:
-        {% if port %}- "{{port}}:80"{% else %}- "80"{% endif %}
-      links:{% for service, alias in links.items() %}
-        - {{service}}:{{alias}}{% endfor %}
+  # Building web from sources
+  web:
+    restart: 'yes'
+    build: .
+    ports:
+      {% if port %}- "{{port}}:80"{% else %}- "80"{% endif %}
+    links:{% for service, alias in links.items() %}
+      - {{service}}:{{alias}}{% endfor %}
 
-{% for key, value in services.items() %}
-{% include '/services/%s.yml' % key %}
-{% endfor %}
+{{services_render}}

@@ -30,14 +30,18 @@ class Builder(object):
         with open(destination, 'w') as f:
             f.write(tmpl.render(**config))
 
-        print 'Dockerfile successfully created!'
-
     # Build 'docker-compose.yml'
-    def build_docker_compose(self, source, destination, config):
-        tmpl = self.env.get_template(source)
-        print config
+    def build_docker_compose(self, source, destination, services_dir, config):
+        tpl = self.env.get_template(source)
+        config['services_render'] = ''
+
+        for k, s in config['services'].items():
+            service_file = os.path.join('services', k + '.yml')
+            if os.path.exists(os.path.join(services_dir, k + '.yml')):
+                s_tpl = self.env.get_template(service_file)
+                config['services_render'] += s_tpl.render(**s)
+                config['services_render'] += "\n\n"
+
         # Write final file including variables
         with open(destination, 'w') as f:
-            f.write(tmpl.render(**config))
-
-        print 'docker-compose.yml successfully created!'
+            f.write(tpl.render(**config))
