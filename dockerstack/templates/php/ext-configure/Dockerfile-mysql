@@ -1,1 +1,1 @@
-docker-php-ext-configure mysql --with-mysql=mysqlnd
+mysql --with-mysql=mysqlnd

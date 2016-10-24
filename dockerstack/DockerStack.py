@@ -106,7 +106,7 @@ class DockerStack(argparse.Action):
         docker_stack_config = DockerStackConfig(config_path)
         if not os.path.exists(config_path):
             # Build 'docker-stack.ini' file
-            pass
+            exit(1);
             # config = docker_stack_config.parse_config()
             # docker_stack_config.build_php_ini(os.path.join('php', 'php.ini'),
             #                                   os.path.join(project_directory, self.SITE_DIRECTORY, 'conf', 'php',
@@ -128,33 +128,10 @@ class DockerStack(argparse.Action):
             )
             print "Mapping database ... done\n"
 
-        # 6. Generate 'Dockerfile'
+        # Builder
         builder = Builder(project_directory)
-        destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
-        config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
-        if not os.path.exists(destination):
-            config['docker']['maintainer'] = self.PROJECT_MAINTAINER
-            builder.build_dockerfile(
-                os.path.join('docker', self.DOCKERFILE_FILE),
-                destination,
-                config['docker']
-            )
-            print "Creating 'Dockerfile' ... done\n"
-        else:
-            print "Dockerfile already exists, do nothing!\n"
 
-        # 7. Generate 'docker-compose.yml'
-        destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
-        if not os.path.exists(destination):
-            builder.build_docker_compose(
-                os.path.join('docker', self.DOCKER_COMPOSE_FILE),
-                destination,
-                os.path.join(self.TEMPLATES_DIRECTORY, 'services'),
-                config['docker-compose']
-            )
-            print "Creating 'docker-compose.yml' ... done\n"
-
-        # 8. Generate 'php.ini'
+        # 6. Generate 'php.ini'
         conf_php_path = os.path.join(project_directory, 'conf', 'php')
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
         if not os.path.exists(destination):
@@ -165,6 +142,40 @@ class DockerStack(argparse.Action):
                 config['php']
             )
             print "Creating 'php.ini'... done"
+
+        # 7. Generate symlink for virtual host
+        destination = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+        shutil.copyfile(
+            os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
+            os.path.join(destination, 'site.conf')
+        )
+
+        # 8. Generate 'Dockerfile'
+        destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
+        config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
+        if not os.path.exists(destination):
+            config['docker']['maintainer'] = self.PROJECT_MAINTAINER
+            builder.build_dockerfile(
+                os.path.join('docker', self.DOCKERFILE_FILE),
+                destination,
+                config['docker']
+            )
+            print "Creating 'Dockerfile' ... done"
+        else:
+            print "Dockerfile already exists, do nothing!"
+
+        # 9. Generate 'docker-compose.yml'
+        destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
+        if not os.path.exists(destination):
+            builder.build_docker_compose(
+                os.path.join('docker', self.DOCKER_COMPOSE_FILE),
+                destination,
+                os.path.join(self.TEMPLATES_DIRECTORY, 'services'),
+                config['docker-compose']
+            )
+            print "Creating 'docker-compose.yml' ... done"
 
         return project
 

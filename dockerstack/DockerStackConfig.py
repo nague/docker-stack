@@ -39,6 +39,10 @@ class DockerStackConfig(object):
         array['docker']['libs'] = string.split(self.config_section_map('general')['libs'], ',')
         array['docker']['extensions'] = string.split(self.config_section_map('php')['extensions'], ',')
         array['docker']['type'] = self.config_section_map('general')['type']
+        if self.config_parser.has_option('php', 'enable'):
+            array['docker']['enable'] = string.split(self.config_section_map('php')['enable'], ',')
+        if self.config_parser.has_option('php', 'pecl'):
+            array['docker']['pecl'] = string.split(self.config_section_map('php')['pecl'], ',')
 
         # docker-compose.yml variables
         array['docker-compose']['port'] = self.config_section_map('webserver')['port']
