@@ -128,7 +128,7 @@ class DockerStack(argparse.Action):
         # 6. Generate 'Dockerfile'
         builder = Builder(project_directory)
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
-        config['docker']['libs'] += self.DEFAULT_LIBS
+        config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
         if not os.path.exists(destination):
             config['docker']['maintainer'] = self.PROJECT_MAINTAINER
             builder.build_dockerfile(
