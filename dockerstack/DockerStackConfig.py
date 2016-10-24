@@ -35,6 +35,7 @@ class DockerStackConfig(object):
         # Dockerfile variables
         array['docker']['image'] = self.config_section_map('php')['version']
         array['docker']['vhost'] = self.config_section_map('webserver')['vhost']
+        array['docker']['server_engine'] = self.config_section_map('webserver')['engine']
         array['docker']['site'] = os.path.basename(array['docker']['vhost'])
         array['docker']['libs'] = string.split(self.config_section_map('general')['libs'], ',')
         array['docker']['extensions'] = string.split(self.config_section_map('php')['extensions'], ',')

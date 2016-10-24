@@ -149,7 +149,7 @@ class DockerStack(argparse.Action):
             os.makedirs(destination)
         shutil.copyfile(
             os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
-            os.path.join(destination, 'site.conf')
+            os.path.join(destination, config['docker']['site'])
         )
 
         # 8. Generate 'Dockerfile'

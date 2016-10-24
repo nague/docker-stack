@@ -8,7 +8,7 @@ MAINTAINER {{maintainer}}
 COPY conf/php/php.ini /usr/local/etc/php/
 
 # Copy Apache vhost
-COPY conf/apache2/sites-available/site.conf /etc/apache2/sites-available/
+COPY conf/apache2/sites-available/{{site}} /etc/apache2/sites-available/
 
 # Install lib dependencies
 RUN apt-get update && \
@@ -29,8 +29,10 @@ RUN {% for e in enable %}docker-php-ext-enable {{e}} {% if not loop.last %}&& {%
 
 {{extra}}
 
+{% if server_engine == 'apache2' %}
 # Enable site Apache2
 RUN a2ensite {{site}}
 
 # Restart Apache
 RUN service apache2 restart
+{% endif %}
