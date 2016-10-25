@@ -4,10 +4,10 @@
     ports:
       {% if port %}- "{{port}}:3306"{% else %}- "3306"{% endif %}
     environment:
-      MYSQL_USER: dev
-      MYSQL_PASSWORD: kaliop
-      MYSQL_DATABASE: sosdevoi_symfony
-      MYSQL_ROOT_PASSWORD: kaliop
+      MYSQL_USER: {% if user %}{{user}}{% else %}dev{% endif %}
+      MYSQL_PASSWORD: {% if password %}{{password}}{% else %}kaliop{% endif %}
+      MYSQL_DATABASE: {% if database %}{{database}}{% else %}kaliop{% endif %}
+      MYSQL_ROOT_PASSWORD: {% if root_password %}{{root_password}}{% else %}kaliop{% endif %}
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     restart: always
     volumes:
