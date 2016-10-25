@@ -50,3 +50,8 @@ Dependencies
 ------------
 * Python 2.7.x
 * GitPython `pip install gitpython`
+* Jinja2 `pip install Jinja2`
+
+How to package application
+--------------------------
+* https://python-packaging.readthedocs.io/en/latest/
