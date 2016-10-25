@@ -106,7 +106,8 @@ class DockerStack(argparse.Action):
         docker_stack_config = DockerStackConfig(config_path)
         if not os.path.exists(config_path):
             # Build 'docker-stack.ini' file
-            exit(1);
+            print "Error: 'docker-stack.ini' not found... aborting"
+            exit(1)
             # config = docker_stack_config.parse_config()
             # docker_stack_config.build_php_ini(os.path.join('php', 'php.ini'),
             #                                   os.path.join(project_directory, self.SITE_DIRECTORY, 'conf', 'php',
@@ -134,8 +135,11 @@ class DockerStack(argparse.Action):
         # 6. Generate 'php.ini'
         conf_php_path = os.path.join(project_directory, 'conf', 'php')
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
-        if not os.path.exists(destination):
+        if not os.path.isdir(conf_php_path):
             os.makedirs(conf_php_path)
+            print "Creating '%s' directory... done" % destination
+
+        if not os.path.exists(destination):
             builder.build_php_ini(
                 os.path.join('php', self.PHP_INI_FILE),
                 destination,
