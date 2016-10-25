@@ -121,13 +121,17 @@ class DockerStack(argparse.Action):
             print "Creating directory '%s' ... done\n" % os.path.join('projects', project, 'db')
         db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
         db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
-        if os.path.exists(db_source_file) and not os.path.exists(db_destination_file):
+        if not os.path.exists(db_source_file):
+            print "Database file '%s' does not exists... aborting"
+            exit(1)
+
+        if not os.path.exists(db_destination_file):
             print "Database file '%s' found" % os.path.basename(config['db'])
             os.symlink(
                 db_source_file,
                 db_destination_file
             )
-            print "Mapping database ... done\n"
+            print "Mapping database... done\n"
 
         # Builder
         builder = Builder(project_directory)
