@@ -124,7 +124,6 @@ class DockerStack(argparse.Action):
         if not os.path.exists(db_source_file):
             print "Database file '%s' does not exists... aborting"
             exit(1)
-
         if not os.path.exists(db_destination_file):
             print "Database file '%s' found" % os.path.basename(config['db'])
             os.symlink(
