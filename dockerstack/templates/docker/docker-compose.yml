@@ -6,6 +6,8 @@ services:
     build: .
     ports:
       {% if port %}- "{{port}}:80"{% else %}- "80"{% endif %}
+    volumes:
+      - ./www:/var/www/html
     links:{% for service, alias in links.items() %}
       - {{service}}:{{alias}}{% endfor %}
 
