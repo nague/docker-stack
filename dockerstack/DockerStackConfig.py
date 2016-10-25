@@ -7,7 +7,7 @@ from jinja2 import Environment, PackageLoader
 
 class DockerStackConfig(object):
 
-    DEFAULT_TIMEZONE = 'America/Montreal'
+    DEFAULT_TIMEZONE = 'America/Toronto'
     config_parser = ConfigParser.ConfigParser()
 
     # Constructor
