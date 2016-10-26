@@ -14,7 +14,7 @@ def parse_args():
     commands.add_argument('-o', nargs='?', const=1, type=str, help='Stop docker container(s) for the current project')
     commands.add_argument('-ps', action='store_true', help='List all created projects')
     commands.add_argument('-rm', nargs='?', const=1, help='Remove one or more projects')
-    commands.add_argument('-v', action='store_true', help='Display version number')
+    commands.add_argument('--version', '-v', action='store_true', help='Display version number')
 
     return parser
 
@@ -38,7 +38,7 @@ def main():
         pass
     elif docker_stack.args.rm:
         docker_stack.remove()
-    elif docker_stack.args.v:
+    elif docker_stack.args.version:
         docker_stack.version()
     else:
         parser.print_help()
