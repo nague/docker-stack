@@ -1,5 +1,5 @@
-Docker Stack by Kaliop Canada
-=============================
+Docker Stack by Kaliop
+======================
 
 Usage
 -----
