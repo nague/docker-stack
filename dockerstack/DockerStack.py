@@ -59,18 +59,24 @@ class DockerStack(argparse.Action):
 
     # Building process
     def build(self):
-        # 1. Ask for project name if not provided
+        ##########################################
+        #  1. Ask for project name if not provided
+        ##########################################
         project = self.args.s or self.args.b
         if project is 1:
             project = raw_input("Please enter the project name: ")
         project_directory = os.path.join(self.PROJECTS_DIRECTORY, project)
 
+        ##################################
         # 2. Create project main directory
+        ##################################
         if not os.path.exists(project_directory):
             os.makedirs(project_directory)
             self.LOG.info('Create main directory for project: %s' % project)
 
+        ###################################################################################
         # 3. Symlink existing sources or Git clone project to self.SITE_DIRECTORY directory
+        ###################################################################################
         if not os.path.exists(os.path.join(project_directory, self.SITE_DIRECTORY)):
             print 'Please choose one of the following:'
             print ' 1. Create a Symlink from existing sources (default)'
@@ -101,7 +107,9 @@ class DockerStack(argparse.Action):
                         'Cloning Git repository from %s to %s' % (
                             source, os.path.join(project_directory, self.SITE_DIRECTORY)))
 
+        #################################################################
         # 4. Read 'docker-stack.ini' file if exists otherwise generate it
+        #################################################################
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
         docker_stack_config = DockerStackConfig(config_path)
         if not os.path.exists(config_path):
@@ -114,28 +122,45 @@ class DockerStack(argparse.Action):
             #                                                'php.ini'))
         config = docker_stack_config.parse_config()
 
+        #############
         # 5. Database
+        #############
+        # Create 'db' directory
         db_dir = os.path.join(project_directory, 'db')
         if not os.path.exists(db_dir):
             os.makedirs(db_dir)
             print "Creating directory '%s' ... done\n" % os.path.join('projects', project, 'db')
+
         db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
         db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
+        # Check database source file exists
         if not os.path.exists(db_source_file):
-            print "Database file '%s' does not exists... aborting"
+            print "Database file '%s' does not exists... aborting" % db_source_file
             exit(1)
+
+        # Copy database file to 'db' directory if not exists already
         if not os.path.exists(db_destination_file):
             print "Database file '%s' found" % os.path.basename(config['db'])
-            os.symlink(
+            shutil.copyfile(
                 db_source_file,
                 db_destination_file
             )
-            print "Mapping database... done\n"
+            print "Copying database file... done\n"
+        # Updating database file if source has been updated
+        elif not os.path.getsize(db_destination_file) == os.path.getsize(db_source_file):
+            shutil.rmtree(db_destination_file)
+            shutil.copyfile(
+                db_source_file,
+                db_destination_file
+            )
+            print "Updating database file... done\n"
 
         # Builder
         builder = Builder(project_directory)
 
+        #######################
         # 6. Generate 'php.ini'
+        #######################
         conf_php_path = os.path.join(project_directory, 'conf', 'php')
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
         if not os.path.isdir(conf_php_path):
@@ -150,7 +175,9 @@ class DockerStack(argparse.Action):
             )
             print "Creating 'php.ini'... done"
 
+        ######################################
         # 7. Generate symlink for virtual host
+        ######################################
         destination = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
         if not os.path.exists(destination):
             os.makedirs(destination)
@@ -160,7 +187,9 @@ class DockerStack(argparse.Action):
         )
         print "Copy virtual host file... done"
 
+        ##########################
         # 8. Generate 'Dockerfile'
+        ##########################
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
         config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
         if not os.path.exists(destination):
@@ -174,7 +203,9 @@ class DockerStack(argparse.Action):
         else:
             print "Dockerfile already exists, do nothing!"
 
+        ##################################
         # 9. Generate 'docker-compose.yml'
+        ##################################
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
         if not os.path.exists(destination):
             builder.build_docker_compose(
