@@ -115,7 +115,7 @@ class DockerStack(argparse.Action):
         if not os.path.exists(config_path):
             # Build 'docker-stack.ini' file
             print "Error: 'docker-stack.ini' not found... aborting"
-            exit(1)
+            return
             # config = docker_stack_config.parse_config()
             # docker_stack_config.build_php_ini(os.path.join('php', 'php.ini'),
             #                                   os.path.join(project_directory, self.SITE_DIRECTORY, 'conf', 'php',
@@ -136,7 +136,7 @@ class DockerStack(argparse.Action):
         # Check database source file exists
         if not os.path.exists(db_source_file):
             print "Database file '%s' does not exists... aborting" % db_source_file
-            exit(1)
+            return
 
         # Copy database file to 'db' directory if not exists already
         if not os.path.exists(db_destination_file):
