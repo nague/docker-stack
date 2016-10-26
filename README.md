@@ -3,48 +3,22 @@ Docker Stack by Kaliop Canada
 
 Usage
 -----
-### Start
-Build and start a new project
 ```bash
-./stash.py -s project
-```
+usage: stack.py [-h] [-s [S]] [-b [B]] [-r [R [R ...]]] [-o [O]] [-ps]
+                [-rm [RM]] [--version]
 
-### Build
-Build a new or existing project
-```bash
-./stash.py -b project
-```
+optional arguments:
+  -h, --help      show this help message and exit
 
-### Run
-Run docker container(s), assuming files has been built
-```bash
-./stash.py -r project1 project2
+Commands:
+  -s [S]          Build and start a new project
+  -b [B]          Build a new or existing project
+  -r [R [R ...]]  Run docker container(s), assuming files has been built
+  -o [O]          Stop docker container(s) for the current project
+  -ps             List all created projects
+  -rm [RM]        Remove one or more projects
+  --version, -v   Display version number
 ```
-
-### Stop
-Stop docker container(s) for the current project
-```bash
-./stash.py -s project1 project2
-```
-
-### Remove
-Remove one or more projects
-```bash
-./stash.py -rm project1 project2
-```
-
-### List projects
-List all created projects
-```bash
-./stash.py -ps
-```
-
-### Version
-Display version number
-```bash
-./stash.py -v
-```
-
 
 Dependencies
 ------------
