@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 import shutil
-import string
 from git import Repo
 from Builder import Builder
 from DockerStackConfig import DockerStackConfig
