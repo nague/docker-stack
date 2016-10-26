@@ -54,8 +54,7 @@ class DockerStack(argparse.Action):
         project = self.build()
         print "\n"
         # 2. Start DockerCompose
-        os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
-        print self.docker_compose.start(project)
+        self.docker_compose.start(project)
 
     # Building process
     def build(self):
@@ -216,6 +215,12 @@ class DockerStack(argparse.Action):
             )
             print "Creating 'docker-compose.yml' ... done"
 
+        ###############################
+        # 10. Force build / re-building
+        ###############################
+        os.chdir(os.path.join(self.PROJECTS_DIRECTORY, project))
+        self.docker_compose.build(project)
+
         return project
 
     # Stop one or more projects
@@ -256,3 +261,4 @@ class DockerStack(argparse.Action):
     # Show version number
     def version(self):
         print 'version %s' % self.VERSION
+        print self.docker_compose.version()
