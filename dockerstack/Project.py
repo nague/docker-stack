@@ -2,6 +2,8 @@ import dockerstack
 import os
 import re
 import shutil
+
+from dockerstack.Progress import Progress
 from git import Repo
 
 from dockerstack.command.ComposeCommand import ComposeCommand
@@ -53,15 +55,13 @@ class Project(object):
     # Start building a new project
     # ============================
     def start(self):
-        # 1. Build new project
-        self.build()
-        print "\n"
-        # 2. Start DockerCompose
+        os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
         self.compose_command.start(self.project_name)
 
     # ================
     # Building process
     # ================
+    @property
     def build(self):
         #  1. Ask for project name if not provided
         if self.project_name is None:
@@ -84,28 +84,36 @@ class Project(object):
             if int(cloning) is 1:
                 source = raw_input("Please provide the full path of your sources directory (e.g. using 'pwd'):\n")
                 validation = raw_input(
-                    "We are about to create a symlink from '%s' to '%s', do you accept (Y/n): \n" % (
+                    "We are about to create a symlink from '{}' to '{}', do you accept (Y/n): \n".format(
                         source, os.path.join(project_directory, self.SITE_DIRECTORY))).lower() or 'y'
                 if validation is 'y':
                     os.symlink(source, os.path.join(project_directory, self.SITE_DIRECTORY))
-                    print "Creating symlink... done\n"
+                    print "Creating symlink ... done\n"
             else:
                 source = raw_input('Please provide a Git valid URL (http or ssh): ')
                 branch = raw_input(
                     'From witch branch do you want to clone the repository (default: master): ') or 'master'
                 validation = raw_input(
-                    "We are about to clone your repo '%s' from branch '%s', do you accept (Y/n): \n" % (
+                    "We are about to clone your repo '{}' from branch '{}', do you accept (Y/n): \n".format(
                         source, branch)).lower() or 'y'
                 if validation is 'y':
-                    Repo.clone_from(source, os.path.join(project_directory, self.SITE_DIRECTORY))
-                    print "Cloning Git repository... done\n"
+                    Repo.clone_from(
+                        source,
+                        os.path.join(project_directory, self.SITE_DIRECTORY),
+                        branch=branch,
+                        progress=Progress()
+                    )
+                    print "Cloning Git repository ... done\n"
+                else:
+                    print "Aborting ..."
+                    return
 
         # 5. Read 'docker-stack.ini' file if exists otherwise generate it
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
         docker_stack_config = DockerStackConfig(config_path)
         if not os.path.exists(config_path):
             # Build 'docker-stack.ini' file
-            print "Error: 'docker-stack.ini' not found... aborting"
+            print "Error: '{}' not found ... aborting".format(self.CONFIG_FILE)
             return
         config = docker_stack_config.parse_config()
 
@@ -119,16 +127,16 @@ class Project(object):
         db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
         # Check database source file exists
         if not os.path.exists(db_source_file):
-            print "Database file '{}' does not exists... aborting".format(db_source_file)
+            print "Database file '{}' does not exists ... aborting".format(db_source_file)
             return
         # Copy database file to 'db' directory if not exists already
         if not os.path.exists(db_destination_file):
-            print "Database file '%s' found" % os.path.basename(config['db'])
+            print "Database file '{}' found".format(os.path.basename(config['db']))
             shutil.copyfile(
                 db_source_file,
                 db_destination_file
             )
-            print "Copying database file... done\n"
+            print "Copying database file ... done\n"
         # Updating database file if source has been updated
         elif not os.path.getsize(db_destination_file) == os.path.getsize(db_source_file):
             shutil.rmtree(db_destination_file)
@@ -136,7 +144,7 @@ class Project(object):
                 db_source_file,
                 db_destination_file
             )
-            print "Updating database file... done\n"
+            print "Updating database file ... done\n"
 
         # 7. Init builder
         builder = Builder(project_directory)
@@ -146,14 +154,14 @@ class Project(object):
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
         if not os.path.isdir(conf_php_path):
             os.makedirs(conf_php_path)
-            print "Creating '%s' directory... done" % destination
+            print "Creating '{}' directory ... done".format(destination)
         if not os.path.exists(destination):
             builder.build_php_ini(
                 os.path.join('php', self.PHP_INI_FILE),
                 destination,
                 config['php']
             )
-            print "Creating 'php.ini'... done"
+            print "Creating 'php.ini' ... done"
 
         # 9. Copy virtual host file
         destination = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
@@ -163,7 +171,7 @@ class Project(object):
             os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
             os.path.join(destination, config['docker']['site'])
         )
-        print "Copy virtual host file... done"
+        print "Copy virtual host file ... done"
 
         # 10. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
@@ -207,4 +215,16 @@ class Project(object):
     # Remove one or more projects
     # ===========================
     def remove(self):
-        pass
+        #  1. Ask for project name if not provided
+        if self.project_name is None:
+            self.project_name = raw_input("Please enter the project name: ")
+
+        # 2.
+        if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, self.project_name)):
+            # Stop containers
+            os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+            self.compose_command.stop(self.project_name)
+            self.compose_command.rm(self.project_name)
+            # Remove project directory
+            shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+            print "Removing '{}' project ... done".format(self.project_name)

@@ -23,16 +23,16 @@ class StackCommand(object):
       version            Display version number
     """
 
-    # ================
-    # Building process
-    # ================
+    # =======================
+    # Building process method
+    # =======================
     def build(self, project):
         """
         Build a new or existing project
 
         Usage: build [PROJECT...]
         """
-        project.build()
+        project.build
 
     # ====================
     # Help-printing method
@@ -51,6 +51,26 @@ class StackCommand(object):
 
         print getdoc(subject)
 
+    # ================================
+    # List all created projects method
+    # ================================
+    def ps(self, project, options):
+        """
+
+        """
+        pass
+
+    # ==================================
+    # Remove one or more projects method
+    # ==================================
+    def rm(self, project, options):
+        """
+        Remove one or more projects
+
+        Usage: rm [PROJECT...]
+        """
+        project.remove()
+
     # ===================================
     # Start building a new project method
     # ===================================
@@ -60,7 +80,18 @@ class StackCommand(object):
 
         Usage: start [PROJECT...]
         """
+        project.build
+        print "\n"
         project.start()
+
+    # =======================================================
+    # Stop docker container(s) for the current project method
+    # =======================================================
+    def stop(self, project, options):
+        """
+
+        """
+        pass
 
     # ==========================
     # Show version number method
