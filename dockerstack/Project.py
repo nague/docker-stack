@@ -163,14 +163,16 @@ class Project(object):
             print "Creating 'php.ini' ... done"
 
         # 9. Copy virtual host file
-        destination = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
-        if not os.path.exists(destination):
-            os.makedirs(destination)
-        shutil.copyfile(
-            os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
-            os.path.join(destination, config['docker']['site'])
-        )
-        print "Copy virtual host file ... done"
+        destination_directory = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
+        if not os.path.exists(destination_directory):
+            os.makedirs(destination_directory)
+        destination_path = os.path.join(destination_directory, config['docker']['site'])
+        if not os.path.exists(destination_path):
+            shutil.copyfile(
+                os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
+                destination_path
+            )
+            print "Copy virtual host file ... done"
 
         # 10. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
@@ -183,8 +185,6 @@ class Project(object):
                 config['docker']
             )
             print "Creating 'Dockerfile' ... done"
-        else:
-            print "Dockerfile already exists, do nothing!"
 
         # 11. Generate 'docker-compose.yml'
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
@@ -197,18 +197,26 @@ class Project(object):
             )
             print "Creating 'docker-compose.yml' ... done"
 
-        # 12. Force build / re-building
-        os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
-        self.compose_command.build(self.project_name)
-
-        # 13. Return project name
+        # 12. Return project name
         return self.project_name
 
     # =========================
     # Stop one or more projects
     # =========================
     def stop(self):
-        pass
+        #  1. Ask for project name if not provided
+        if self.project_name is None:
+            self.project_name = raw_input("Please enter the project name: ")
+
+        # 2. If project exists
+        project_path = os.path.join(self.PROJECTS_DIRECTORY, self.project_name)
+        if os.path.exists(project_path):
+            # Stop containers
+            os.chdir(project_path)
+            self.compose_command.stop(self.project_name)
+            print "Stopping '{}' project ... done".format(self.project_name)
+        else:
+            print "No such project: '{}'".format(self.project_name)
 
     # ===========================
     # Remove one or more projects
@@ -218,12 +226,16 @@ class Project(object):
         if self.project_name is None:
             self.project_name = raw_input("Please enter the project name: ")
 
-        # 2.
-        if os.path.exists(os.path.join(self.PROJECTS_DIRECTORY, self.project_name)):
+        # 2. If project exists
+        project_path = os.path.join(self.PROJECTS_DIRECTORY, self.project_name)
+        if os.path.exists(project_path):
             # Stop containers
-            os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+            os.chdir(project_path)
             self.compose_command.stop(self.project_name)
             self.compose_command.rm(self.project_name)
+            print "\n"
             # Remove project directory
-            shutil.rmtree(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+            shutil.rmtree(project_path)
             print "Removing '{}' project ... done".format(self.project_name)
+        else:
+            print "No such project: '{}'".format(self.project_name)

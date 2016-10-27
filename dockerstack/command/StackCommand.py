@@ -32,7 +32,7 @@ class StackCommand(object):
 
         Usage: build [PROJECT...]
         """
-        project.build
+        project.build()
 
     # ====================
     # Help-printing method
@@ -89,9 +89,11 @@ class StackCommand(object):
     # =======================================================
     def stop(self, project, options):
         """
+        Stop docker container(s) for the current project
 
+        Usage: stop [PROJECT...]
         """
-        pass
+        project.stop()
 
     # ==========================
     # Show version number method
