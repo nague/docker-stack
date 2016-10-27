@@ -80,7 +80,7 @@ class StackCommand(object):
 
         Usage: start [PROJECT...]
         """
-        project.build
+        project.build()
         print "\n"
         project.start()
 
