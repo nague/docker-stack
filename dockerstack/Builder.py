@@ -1,8 +1,12 @@
 import os
+
+import dockerstack
 from jinja2 import Environment, PackageLoader
 
 
 class Builder(object):
+
+    CURRENT_PATH = os.path.dirname(dockerstack.__file__)
 
     # Constructor
     def __init__(self, project_directory):
@@ -16,7 +20,7 @@ class Builder(object):
         # Arguments to pass to template
         args['extra'] = ''
         # Check extra template part
-        extra = os.path.join('./templates', 'extra', args['type'], 'Dockerfile')
+        extra = os.path.join(self.CURRENT_PATH, 'templates', 'extra', args['type'], 'Dockerfile')
         if os.path.exists(extra):
             e = open(extra)
             args['extra'] = e.read()
@@ -24,7 +28,7 @@ class Builder(object):
         # PHP ext configure
         args['configure'] = []
         for ext in args['extensions']:
-            ext_configure = os.path.join('./templates', 'php', 'ext-configure', 'Dockerfile-' + ext)
+            ext_configure = os.path.join(self.CURRENT_PATH, 'templates', 'php', 'ext-configure', 'Dockerfile-' + ext)
             if os.path.exists(ext_configure):
                 c = open(ext_configure)
                 args['configure'] += [c.read()]

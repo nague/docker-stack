@@ -26,9 +26,9 @@ def find_version(*file_paths):
 
 
 install_requires = [
-    'gitpython',
-    'jinja2',
-    'docopt'
+    'gitpython >= 2',
+    'jinja2 >= 2',
+    'docopt >= 0.6.1, < 0.7',
 ]
 
 setup(
@@ -41,9 +41,17 @@ setup(
     license='Apache License 2.0',
     packages=find_packages(),
     include_package_data=True,
+    install_requires=install_requires,
     entry_points="""
     [console_scripts]
     docker-stack=dockerstack.main:main
     """,
-    install_requires=install_requires
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+    ],
 )

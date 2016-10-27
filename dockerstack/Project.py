@@ -11,11 +11,12 @@ from Builder import Builder
 
 class Project(object):
 
+    CURRENT_PATH = os.path.dirname(dockerstack.__file__)
     CONFIG_DIRECTORY = os.path.join(os.path.expanduser('~'), '.config', 'docker-stack')
     PROJECTS_DIRECTORY = os.path.join(os.path.expanduser('~'), 'DockerStackProjects')
     SITE_DIRECTORY = 'www'
     CONFIG_FILE = 'docker-stack.ini'
-    TEMPLATES_DIRECTORY = './templates/'
+    TEMPLATES_DIRECTORY = 'templates'
     PHP_INI_FILE = 'php.ini'
     DOCKERFILE_FILE = 'Dockerfile'
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
@@ -184,7 +185,7 @@ class Project(object):
             builder.build_docker_compose(
                 os.path.join('docker', self.DOCKER_COMPOSE_FILE),
                 destination,
-                os.path.join(self.TEMPLATES_DIRECTORY, 'services'),
+                os.path.join(self.CURRENT_PATH, self.TEMPLATES_DIRECTORY, 'services'),
                 config['docker-compose']
             )
             print "Creating 'docker-compose.yml' ... done"
