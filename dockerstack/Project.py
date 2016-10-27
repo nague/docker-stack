@@ -61,7 +61,6 @@ class Project(object):
     # ================
     # Building process
     # ================
-    @property
     def build(self):
         #  1. Ask for project name if not provided
         if self.project_name is None:
