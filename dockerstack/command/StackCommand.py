@@ -4,7 +4,8 @@ from inspect import getdoc
 
 
 class StackCommand(object):
-    """Define and run multi-container applications with Docker.
+    """An utility to Dockerize your applications, generating minimal docker
+    requires files and start containers.
 
     Usage:
       docker-stack [-p <arg>...] [options] [COMMAND] [ARGS...]
@@ -21,6 +22,8 @@ class StackCommand(object):
       start              Build and start a new project
       stop               Stop docker container(s) for the current project
       version            Display version number
+
+    Run 'docker-stack COMMAND --help' for more information on a command.
     """
 
     # =======================
