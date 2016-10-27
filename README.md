@@ -28,11 +28,6 @@ Dependencies
 * Jinja2 `pip install Jinja2`
 * docopt `pip install docopt`
 
-How to package application
---------------------------
-
-How to build develop
---------------------
-```bash
-python setup.py develop
-```
+Contributing
+------------
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
