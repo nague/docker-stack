@@ -5,7 +5,8 @@ services:
     restart: 'yes'
     build: .
     ports:
-      {% if port %}- "{{port}}:80"{% else %}- "80"{% endif %}
+      {% for port in ports %}- "{{port}}"
+      {% endfor %}
     volumes:
       - ./www:/var/www/html
     links:{% for service, alias in links.items() %}
