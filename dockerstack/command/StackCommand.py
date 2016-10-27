@@ -56,7 +56,9 @@ class StackCommand(object):
     # ================================
     def ps(self, project, options):
         """
+        List all created projects
 
+        Usage: ps [PROJECT...]
         """
         pass
 
