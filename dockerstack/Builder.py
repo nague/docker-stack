@@ -7,7 +7,7 @@ class Builder(object):
     # Constructor
     def __init__(self, project_directory):
         self.project_directory = project_directory
-        self.env = Environment(loader=PackageLoader('DockerStack', 'templates'))
+        self.env = Environment(loader=PackageLoader('dockerstack', 'templates'))
 
     # Build 'Dockerfile' file
     def build_dockerfile(self, source, destination, args):

@@ -1,23 +1,24 @@
-Docker Stack by Kaliop
-======================
+Docker Stack by Kaliop `0.2`
+============================
 
 Usage
 -----
 ```bash
-usage: stack.py [-h] [-s [S]] [-b [B]] [-r [R [R ...]]] [-o [O]] [-ps]
-                [-rm [RM]] [--version]
+Usage:
+  docker-stack [-p <arg>...] [options] [COMMAND] [ARGS...]
+  docker-stack -h|--help
 
-optional arguments:
-  -h, --help      show this help message and exit
+Options:
+  -p, --project-name NAME     Specify the project name
 
 Commands:
-  -s [S]          Build and start a new project
-  -b [B]          Build a new or existing project
-  -r [R [R ...]]  Run docker container(s), assuming files has been built
-  -o [O]          Stop docker container(s) for the current project
-  -ps             List all created projects
-  -rm [RM]        Remove one or more projects
-  --version, -v   Display version number
+  build              Build a new or existing project
+  help               Get help on a command
+  ps                 List all created projects
+  rm                 Remove one or more projects
+  start              Build and start a new project
+  stop               Stop docker container(s) for the current project
+  version            Display version number
 ```
 
 Dependencies
@@ -25,7 +26,13 @@ Dependencies
 * Python 2.7.x
 * GitPython `pip install gitpython`
 * Jinja2 `pip install Jinja2`
+* docopt `pip install docopt`
 
 How to package application
 --------------------------
-* https://python-packaging.readthedocs.io/en/latest/
+
+How to build develop
+--------------------
+```bash
+python setup.py develop
+```

@@ -2,7 +2,8 @@ from __future__ import print_function
 import subprocess
 
 
-class DockerCompose(object):
+class ComposeCommand(object):
+
     DOCKER_COMPOSE_CMD = 'docker-compose'
     SUDO_CMD = '/usr/bin/sudo'
 

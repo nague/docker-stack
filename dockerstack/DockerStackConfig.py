@@ -13,7 +13,7 @@ class DockerStackConfig(object):
     # Constructor
     def __init__(self, path):
         self.config_path = path
-        self.env = Environment(loader=PackageLoader('DockerStack', 'templates'))
+        self.env = Environment(loader=PackageLoader('dockerstack', 'templates'))
 
     # Parse config file
     def parse_config(self):
