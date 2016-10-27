@@ -4,5 +4,5 @@
     ports:
       {% if port %}- "{{port}}:25"{% else %}- "25"{% endif %}
     environment:
-      GMAIL_USER: nicogommen@gmail.com
-      GMAIL_PASSWORD: kaliopgmail
+      GMAIL_USER: {{gmail_user}}
+      GMAIL_PASSWORD: {{gmail_password}}
