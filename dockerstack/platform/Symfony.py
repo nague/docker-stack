@@ -1,7 +1,7 @@
-from dockerstack.IAdapter import IAdapter
+from dockerstack.IPlatform import IPlatform
 
 
-class Symfony(IAdapter):
+class Symfony(IPlatform):
     def post_processing(self):
         pass
 

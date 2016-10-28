@@ -4,8 +4,8 @@ from inspect import getdoc
 
 
 class StackCommand(object):
-    """An utility to Dockerize your applications, generating minimal docker
-    requires files and start containers.
+    """An utility to Dockerize your applications and generate minimal docker
+    requires files.
 
     Usage:
       docker-stack [-p <arg>...] [options] [COMMAND] [ARGS...]
