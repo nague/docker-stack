@@ -19,7 +19,5 @@ Building a distributed version
 ### deb
 `pip install stdeb`
 `python setup.py --command-packages=stdeb.command bdist_deb`
-### standalone executable
-`pip install bbfreeze`
-`python setup.py bdist_bbfreeze`
-> see: https://pypi.python.org/pypi/bbfreeze/
+### wheel
+`python setup.py sdist bdist_wheel`
