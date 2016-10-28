@@ -3,12 +3,12 @@ import os
 import re
 import shutil
 
-from dockerstack.Progress import Progress
 from git import Repo
 
 from dockerstack.command.ComposeCommand import ComposeCommand
-from DockerStackConfig import DockerStackConfig
-from Builder import Builder
+from dockerstack.Config import Config
+from dockerstack.Builder import Builder
+from dockerstack.Progress import Progress
 
 
 class Project(object):
@@ -110,7 +110,7 @@ class Project(object):
 
         # 5. Read 'docker-stack.ini' file if exists otherwise generate it
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
-        docker_stack_config = DockerStackConfig(config_path)
+        docker_stack_config = Config(config_path)
         if not os.path.exists(config_path):
             # Build 'docker-stack.ini' file
             print "Error: '{}' not found ... aborting".format(self.CONFIG_FILE)
