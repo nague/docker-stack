@@ -29,13 +29,13 @@ class StackCommand(object):
     # =======================
     # Building process method
     # =======================
-    def build(self, project):
+    def build(self, project, options):
         """
         Build a new or existing project
 
         Usage: build [PROJECT...]
         """
-        project.build()
+        project.build(force_rebuild=True)
 
     # ====================
     # Help-printing method
