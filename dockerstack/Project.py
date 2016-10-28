@@ -82,9 +82,11 @@ class Project(object):
             print "\n"
             if int(cloning) is 1:
                 source = raw_input("Please provide the full path of your sources directory (e.g. using 'pwd'):\n")
-                validation = raw_input(
-                    "We are about to create a symlink from '{}' to '{}', do you accept (Y/n): \n".format(
-                        source, os.path.join(project_directory, self.SITE_DIRECTORY))).lower() or 'y'
+                print "We are about to create a symlink from '{}' to '{}'\n".format(
+                    source,
+                    os.path.join(project_directory, self.SITE_DIRECTORY)
+                )
+                validation = raw_input("Do you want to continue [Y/n]: ").lower() or 'y'
                 if validation is 'y':
                     os.symlink(source, os.path.join(project_directory, self.SITE_DIRECTORY))
                     print "Creating symlink ... done\n"
@@ -92,9 +94,8 @@ class Project(object):
                 source = raw_input('Please provide a Git valid URL (http or ssh): ')
                 branch = raw_input(
                     'From witch branch do you want to clone the repository (default: master): ') or 'master'
-                validation = raw_input(
-                    "We are about to clone your repo '{}' from branch '{}', do you accept (Y/n): \n".format(
-                        source, branch)).lower() or 'y'
+                print "We are about to clone your repo '{}' from branch '{}'\n".format(source, branch)
+                validation = raw_input("Do you want to continue [Y/n]: ").lower() or 'y'
                 if validation is 'y':
                     Repo.clone_from(
                         source,
