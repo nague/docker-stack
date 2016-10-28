@@ -154,7 +154,7 @@ class Project(object):
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
         if not os.path.isdir(conf_php_path):
             os.makedirs(conf_php_path)
-            print "Creating '{}' directory ... done".format(destination)
+            print "Creating '{}' directory ... done".format(conf_php_path)
         if not os.path.exists(destination):
             builder.build_php_ini(
                 os.path.join('php', self.PHP_INI_FILE),
