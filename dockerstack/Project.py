@@ -110,11 +110,11 @@ class Project(object):
 
         # 5. Read 'docker-stack.ini' file if exists otherwise generate it
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
-        docker_stack_config = Config(config_path)
         if not os.path.exists(config_path):
             # Build 'docker-stack.ini' file
             print "Error: '{}' not found ... aborting".format(self.CONFIG_FILE)
             return
+        docker_stack_config = Config(config_path)
         config = docker_stack_config.parse_config()
 
         # 6. Database
