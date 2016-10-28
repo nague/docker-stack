@@ -1,5 +1,5 @@
-Docker Stack by Kaliop `0.2`
-============================
+Docker Stack by Kaliop
+======================
 
 Usage
 -----
@@ -27,7 +27,3 @@ Dependencies
 * GitPython `pip install gitpython`
 * Jinja2 `pip install Jinja2`
 * docopt `pip install docopt`
-
-Contributing
-------------
-See [CONTRIBUTING.md](./CONTRIBUTING.md)
