@@ -61,7 +61,7 @@ class Project(object):
     # ================
     # Building process
     # ================
-    def build(self):
+    def build(self, force_rebuild=False):
         #  1. Ask for project name if not provided
         if self.project_name is None:
             self.project_name = raw_input("Please enter the project name: ")
@@ -198,7 +198,14 @@ class Project(object):
             )
             print "Creating 'docker-compose.yml' ... done"
 
-        # 12. Return project name
+        # 12. Force rebuild
+        if force_rebuild is True:
+            print "Starting rebuilding containers ...\n"
+            os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+            self.compose_command.build(self.project_name)
+            print "Containers rebuilding ... done"
+
+        # 13. Return project name
         return self.project_name
 
     # =========================
