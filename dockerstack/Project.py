@@ -234,7 +234,6 @@ class Project(object):
             os.chdir(project_path)
             self.compose_command.stop(self.project_name)
             self.compose_command.rm(self.project_name)
-            print "\n"
             # Remove project directory
             shutil.rmtree(project_path)
             print "Removing '{}' project ... done".format(self.project_name)
