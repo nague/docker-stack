@@ -9,7 +9,7 @@ services:
       {% endfor %}
     volumes:
       - ./www:/var/www/html
-    links:{% for service, alias in links.items() %}
-      - {{service}}:{{alias}}{% endfor %}
+    {% if links.items() %}links:{% for service, alias in links.items() %}
+      - {{service}}:{{alias}}{% endfor %}{% endif %}
 
 {{services_render}}

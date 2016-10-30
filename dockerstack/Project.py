@@ -13,22 +13,30 @@ from dockerstack.Progress import Progress
 
 class Project(object):
 
+    # Constants
     CURRENT_PATH = os.path.dirname(dockerstack.__file__)
     CONFIG_DIRECTORY = os.path.join(os.path.expanduser('~'), '.config', 'docker-stack')
     PROJECTS_DIRECTORY = os.path.join(os.path.expanduser('~'), 'DockerStackProjects')
     SITE_DIRECTORY = 'www'
-    CONFIG_FILE = 'docker-stack.json'
     TEMPLATES_DIRECTORY = 'templates'
     PHP_INI_FILE = 'php.ini'
     DOCKERFILE_FILE = 'Dockerfile'
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     DEFAULT_LIBS = ['wget', 'git', 'curl', 'zip']
 
+    # Properties
+    project_name = None
+    config_file = 'docker-stack.json'
+
     # ===========
     # Constructor
     # ===========
-    def __init__(self, project_name=None):
-        self.project_name = self.get_project_name(project_name)
+    def __init__(self, options):
+        if options.get('--project-name'):
+            self.project_name = self.get_project_name(options.get('--project-name'))
+        if options.get('--file'):
+            self.config_file = options.get('--file')
+
         self.compose_command = ComposeCommand()
 
         # Welcome message when stating app
@@ -48,7 +56,7 @@ class Project(object):
     @staticmethod
     def get_project_name(project_name):
         if project_name:
-            return re.sub(r'[^a-z0-9]', '', project_name[0].lower())
+            return re.sub(r'[^a-z0-9]', '', project_name.lower())
         return None
 
     # ============================
@@ -109,41 +117,42 @@ class Project(object):
                     return
 
         # 5. Read 'docker-stack.json' file
-        config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
+        config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.config_file)
         if not os.path.exists(config_path):
-            print "Error: '{}' not found ... aborting".format(self.CONFIG_FILE)
+            print "Error: '{}' not found ... aborting".format(self.config_file)
             return
         docker_stack_config = Config(config_path)
         config = docker_stack_config.parse_config()
 
         # 6. Database
-        # Create 'db' directory
-        db_dir = os.path.join(project_directory, 'db')
-        if not os.path.exists(db_dir):
-            os.makedirs(db_dir)
-            print "Creating directory '{}' ... done\n".format(os.path.join('projects', self.project_name, 'db'))
-        db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
-        db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
-        # Check database source file exists
-        if not os.path.exists(db_source_file):
-            print "Database file '{}' does not exists ... aborting".format(db_source_file)
-            return
-        # Copy database file to 'db' directory if not exists already
-        if not os.path.exists(db_destination_file):
-            print "Database file '{}' found".format(os.path.basename(config['db']))
-            shutil.copyfile(
-                db_source_file,
-                db_destination_file
-            )
-            print "Copying database file ... done\n"
-        # Updating database file if source has been updated
-        elif not os.path.getsize(db_destination_file) == os.path.getsize(db_source_file):
-            shutil.rmtree(db_destination_file)
-            shutil.copyfile(
-                db_source_file,
-                db_destination_file
-            )
-            print "Updating database file ... done\n"
+        if 'db' in config:
+            # Create 'db' directory
+            db_dir = os.path.join(project_directory, 'db')
+            if not os.path.exists(db_dir):
+                os.makedirs(db_dir)
+                print "Creating directory '{}' ... done\n".format(os.path.join('projects', self.project_name, 'db'))
+            db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
+            db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
+            # Check database source file exists
+            if not os.path.exists(db_source_file):
+                print "Database file '{}' does not exists ... aborting".format(db_source_file)
+                return
+            # Copy database file to 'db' directory if not exists already
+            if not os.path.exists(db_destination_file):
+                print "Database file '{}' found".format(os.path.basename(config['db']))
+                shutil.copyfile(
+                    db_source_file,
+                    db_destination_file
+                )
+                print "Copying database file ... done\n"
+            # Updating database file if source has been updated
+            elif not os.path.getsize(db_destination_file) == os.path.getsize(db_source_file):
+                shutil.rmtree(db_destination_file)
+                shutil.copyfile(
+                    db_source_file,
+                    db_destination_file
+                )
+                print "Updating database file ... done\n"
 
         # 7. Init builder
         builder = Builder(project_directory)
@@ -176,7 +185,8 @@ class Project(object):
 
         # 10. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
-        config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
+        if 'libs' in config['docker']:
+            config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
         if not os.path.exists(destination):
             config['docker']['maintainer'] = dockerstack.__maintainer__
             builder.build_dockerfile(

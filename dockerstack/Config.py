@@ -13,6 +13,7 @@ class Config(object):
     # Constructor
     # ===========
     def __init__(self, path):
+        self.DEFAULT_PORT = [80]
         self.config_path = path
         with open(self.config_path) as data_file:
             self.data = json.load(data_file)
@@ -51,7 +52,9 @@ class Config(object):
         general = self.data['general']
         webserver = self.data['webserver']
         php = self.data['php']
-        services = self.data['services'] or None
+        services = None
+        if 'services' in self.data:
+            services = self.data['services']
 
         # Database path
         if 'db_path' in general:
@@ -74,6 +77,7 @@ class Config(object):
             array['docker']['pecl'] = php['pecl']
 
         # docker-compose.yml variables
+        array['docker-compose']['ports'] = self.DEFAULT_PORT
         if 'ports' in webserver:
             array['docker-compose']['ports'] = webserver['ports']
         if services:

@@ -8,10 +8,11 @@ class StackCommand(object):
     requires files.
 
     Usage:
-      docker-stack [-p <arg>...] [options] [COMMAND] [ARGS...]
+      docker-stack [-f <arg>] [options] [COMMAND] [ARGS...]
       docker-stack -h|--help
 
     Options:
+      -f, --file FILE             Specify an alternate stack file (default: docker-stack.json)
       -p, --project-name NAME     Specify the project name
 
     Commands:

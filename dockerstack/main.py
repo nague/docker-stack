@@ -48,7 +48,7 @@ def perform_command(options, handler, command_options):
         handler(command_options)
         return
 
-    project = Project(options.get('--project-name'))
+    project = Project(options)
     handler(StackCommand(), project, command_options)
 
 

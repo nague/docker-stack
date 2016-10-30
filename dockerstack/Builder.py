@@ -28,11 +28,12 @@ class Builder(object):
 
         # PHP ext configure
         args['configure'] = []
-        for ext in args['extensions']:
-            ext_configure = os.path.join(self.CURRENT_PATH, 'templates', 'php', 'ext-configure', 'Dockerfile-' + ext)
-            if os.path.exists(ext_configure):
-                c = open(ext_configure)
-                args['configure'] += [c.read()]
+        if 'extensions' in args:
+            for ext in args['extensions']:
+                ext_configure = os.path.join(self.CURRENT_PATH, 'templates', 'php', 'ext-configure', 'Dockerfile-' + ext)
+                if os.path.exists(ext_configure):
+                    c = open(ext_configure)
+                    args['configure'] += [c.read()]
 
         # Write final file including variables
         with open(destination, 'w') as f:
