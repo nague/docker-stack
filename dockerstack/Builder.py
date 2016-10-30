@@ -44,8 +44,8 @@ class Builder(object):
         args['services_render'] = ''
 
         for k, s in args['services'].items():
-            service_file = os.path.join('services', k + '.yml')
-            if os.path.exists(os.path.join(services_dir, k + '.yml')):
+            service_file = os.path.join('services', s['link'] + '.yml')
+            if os.path.exists(os.path.join(services_dir, s['link'] + '.yml')):
                 s_tpl = self.env.get_template(service_file)
                 args['services_render'] += s_tpl.render(**s)
                 args['services_render'] += "\n\n"

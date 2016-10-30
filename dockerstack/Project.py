@@ -17,7 +17,7 @@ class Project(object):
     CONFIG_DIRECTORY = os.path.join(os.path.expanduser('~'), '.config', 'docker-stack')
     PROJECTS_DIRECTORY = os.path.join(os.path.expanduser('~'), 'DockerStackProjects')
     SITE_DIRECTORY = 'www'
-    CONFIG_FILE = 'docker-stack.ini'
+    CONFIG_FILE = 'docker-stack.json'
     TEMPLATES_DIRECTORY = 'templates'
     PHP_INI_FILE = 'php.ini'
     DOCKERFILE_FILE = 'Dockerfile'
@@ -108,10 +108,9 @@ class Project(object):
                     print "Aborting ..."
                     return
 
-        # 5. Read 'docker-stack.ini' file if exists otherwise generate it
+        # 5. Read 'docker-stack.json' file
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.CONFIG_FILE)
         if not os.path.exists(config_path):
-            # Build 'docker-stack.ini' file
             print "Error: '{}' not found ... aborting".format(self.CONFIG_FILE)
             return
         docker_stack_config = Config(config_path)

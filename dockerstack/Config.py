@@ -1,21 +1,21 @@
-import ConfigParser
 import os
 import errno
 import string
+import json
 from jinja2 import Environment, PackageLoader
 
 
 class Config(object):
-
     DEFAULT_TIMEZONE = 'America/Toronto'
-    config_parser = ConfigParser.ConfigParser()
+    data = []
 
     # ===========
     # Constructor
     # ===========
     def __init__(self, path):
         self.config_path = path
-        self.config_parser.read(self.config_path)
+        with open(self.config_path) as data_file:
+            self.data = json.load(data_file)
         self.env = Environment(loader=PackageLoader('dockerstack', 'templates'))
 
     # =================
@@ -38,22 +38,23 @@ class Config(object):
             'php': ['version']
         }
         # Checking default required sections/options exists
-        for section, options in required.items():
+        for key, values in required.items():
             # 1. Check section exists
-            if not self.config_parser.has_section(section):
-                raise Exception('Error, section "{}" is required'.format(section))
+            if key not in self.data:
+                raise Exception('Error, section "{}" is required'.format(key))
             # 2. Check option exists
-            for option in options:
-                if not self.config_parser.has_option(section, option):
-                    raise Exception('Error, option "{}" in section "{}" is required'.format(option, section))
+            for value in values:
+                if value not in self.data[key]:
+                    raise Exception('Error, option "{}" in section "{}" is required'.format(value, key))
 
         # Get main sections
-        general = self.config_section_map('general')
-        webserver = self.config_section_map('webserver')
-        php = self.config_section_map('php')
+        general = self.data['general']
+        webserver = self.data['webserver']
+        php = self.data['php']
+        services = self.data['services'] or None
 
         # Database path
-        if self.config_parser.has_option('general', 'db_path'):
+        if 'db_path' in general:
             array['db'] = general['db_path']
 
         # Dockerfile variables
@@ -61,47 +62,31 @@ class Config(object):
         array['docker']['vhost'] = webserver['vhost']
         array['docker']['site'] = os.path.basename(webserver['vhost'])
         array['docker']['image'] = php['version']
-        if self.config_parser.has_option('general', 'libs'):
-            array['docker']['libs'] = string.split(general['libs'], ',')
-        if self.config_parser.has_option('php', 'extensions'):
-            array['docker']['extensions'] = string.split(php['extensions'], ',')
-        if self.config_parser.has_option('general', 'platform'):
+        if 'libs' in general:
+            array['docker']['libs'] = general['libs']
+        if 'extensions' in php:
+            array['docker']['extensions'] = php['extensions']
+        if 'platform' in general:
             array['docker']['platform'] = general['platform']
-        if self.config_parser.has_option('php', 'enable'):
-            array['docker']['enable'] = string.split(php['enable'], ',')
-        if self.config_parser.has_option('php', 'pecl'):
-            array['docker']['pecl'] = string.split(php['pecl'], ',')
+        if 'enable' in php:
+            array['docker']['enable'] = php['enable']
+        if 'pecl' in php:
+            array['docker']['pecl'] = php['pecl']
 
         # docker-compose.yml variables
-        if self.config_parser.has_option('webserver', 'ports'):
-            array['docker-compose']['ports'] = string.split(webserver['ports'], ',')
-        if self.config_parser.has_section('services'):
-            for k, v in self.config_section_map('services').items():
-                array['docker-compose']['links'][v] = self.config_section_map(k)['link']
-                array['docker-compose']['services'][v] = self.config_section_map(k)
+        if 'ports' in webserver:
+            array['docker-compose']['ports'] = webserver['ports']
+        if services:
+            for k, v in services.items():
+                array['docker-compose']['links'][v['link']] = k
+                array['docker-compose']['services'][k] = v
 
         # php.ini variables
-        if self.config_parser.has_option('php', 'timezone'):
+        if 'timezone' in php:
             array['php']['timezone'] = php['timezone']
         else:
             array['php']['timezone'] = self.DEFAULT_TIMEZONE
 
-        return array
-
-    # =====================
-    # Get config by section
-    # =====================
-    def config_section_map(self, section):
-        array = {}
-        options = self.config_parser.options(section)
-        for option in options:
-            try:
-                array[option] = self.config_parser.get(section, option)
-                if array[option] == -1:
-                    print("skip: %s" % option)
-            except ValueError:
-                print("exception on %s!" % option)
-                array[option] = None
         return array
 
     # ==================
