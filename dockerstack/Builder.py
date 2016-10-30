@@ -19,11 +19,12 @@ class Builder(object):
 
         # Arguments to pass to template
         args['extra'] = ''
-        # Check extra template part
-        extra = os.path.join(self.CURRENT_PATH, 'templates', 'extra', args['type'], 'Dockerfile')
-        if os.path.exists(extra):
-            e = open(extra)
-            args['extra'] = e.read()
+        # Check extra template
+        if 'platform' in args:
+            extra = os.path.join(self.CURRENT_PATH, 'templates', 'extra', args['platform'], 'Dockerfile')
+            if os.path.exists(extra):
+                e = open(extra)
+                args['extra'] = e.read()
 
         # PHP ext configure
         args['configure'] = []
