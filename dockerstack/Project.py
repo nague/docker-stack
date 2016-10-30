@@ -113,14 +113,12 @@ class Project(object):
                     )
                     print "Cloning Git repository ... done\n"
                 else:
-                    print "Aborting ..."
-                    return
+                    raise Exception("Aborting ...")
 
         # 5. Read 'docker-stack.json' file
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.config_file)
         if not os.path.exists(config_path):
-            print "Error: '{}' not found ... aborting".format(self.config_file)
-            return
+            raise Exception("Error: '{}' not found ... aborting".format(self.config_file))
         docker_stack_config = Config(config_path)
         config = docker_stack_config.parse_config()
 
@@ -135,8 +133,7 @@ class Project(object):
             db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
             # Check database source file exists
             if not os.path.exists(db_source_file):
-                print "Database file '{}' does not exists ... aborting".format(db_source_file)
-                return
+                raise Exception("Database file '{}' does not exists ... aborting".format(db_source_file))
             # Copy database file to 'db' directory if not exists already
             if not os.path.exists(db_destination_file):
                 print "Database file '{}' found".format(os.path.basename(config['db']))
@@ -233,7 +230,7 @@ class Project(object):
             self.compose_command.stop(self.project_name)
             print "Stopping '{}' project ... done".format(self.project_name)
         else:
-            print "No such project: '{}'".format(self.project_name)
+            raise Exception("No such project: '{}'".format(self.project_name))
 
     # ===========================
     # Remove one or more projects
@@ -254,4 +251,4 @@ class Project(object):
             shutil.rmtree(project_path)
             print "Removing '{}' project ... done".format(self.project_name)
         else:
-            print "No such project: '{}'".format(self.project_name)
+            raise Exception("No such project: '{}'".format(self.project_name))

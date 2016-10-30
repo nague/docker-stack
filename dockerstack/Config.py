@@ -1,6 +1,5 @@
 import os
 import errno
-import string
 import json
 from jinja2 import Environment, PackageLoader
 

@@ -48,8 +48,11 @@ def perform_command(options, handler, command_options):
         handler(command_options)
         return
 
-    project = Project(options)
-    handler(StackCommand(), project, command_options)
+    try:
+        project = Project(options)
+        handler(StackCommand(), project, command_options)
+    except Exception as e:
+        print e.message
 
 
 def setup_logging():
