@@ -1,7 +1,7 @@
-from dockerstack.IPlatform import IPlatform
+from dockerstack.Platform import Platform
 
 
-class Symfony(IPlatform):
+class Symfony(Platform):
     def post_processing(self):
         pass
 

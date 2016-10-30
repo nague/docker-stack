@@ -1,4 +1,8 @@
-class IPlatform:
+from abc import ABCMeta
+
+
+class Platform:
+    __metaclass__ = ABCMeta
 
     # Pre processing
     def __init__(self):
