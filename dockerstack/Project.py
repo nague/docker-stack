@@ -235,20 +235,16 @@ class Project(object):
     # ===========================
     # Remove one or more projects
     # ===========================
-    def remove(self):
-        #  1. Ask for project name if not provided
-        if self.project_name is None:
-            self.project_name = raw_input("Please enter the project name: ")
-
-        # 2. If project exists
-        project_path = os.path.join(self.PROJECTS_DIRECTORY, self.project_name)
-        if os.path.exists(project_path):
-            # Stop containers
-            os.chdir(project_path)
-            self.compose_command.stop(self.project_name)
-            self.compose_command.rm(self.project_name)
-            # Remove project directory
-            shutil.rmtree(project_path)
-            print "Removing '{}' project ... done".format(self.project_name)
-        else:
-            raise Exception("No such project: '{}'".format(self.project_name))
+    def remove(self, projects):
+        for project in projects:
+            project_path = os.path.join(self.PROJECTS_DIRECTORY, project)
+            if os.path.exists(project_path):
+                # Stop containers
+                os.chdir(project_path)
+                self.compose_command.stop(project)
+                self.compose_command.rm(project)
+                # Remove project directory
+                shutil.rmtree(project_path)
+                print "Removing '{}' project ... done".format(project)
+            else:
+                print "No such project: '{}'".format(project)

@@ -34,7 +34,7 @@ class StackCommand(object):
         """
         Build a new or existing project
 
-        Usage: build [PROJECT...]
+        Usage: build [ARGS...]
         """
         project.build(force_rebuild=True)
 
@@ -62,7 +62,7 @@ class StackCommand(object):
         """
         List all created projects
 
-        Usage: ps [PROJECT...]
+        Usage: ps [ARGS...]
         """
         pass
 
@@ -73,9 +73,13 @@ class StackCommand(object):
         """
         Remove one or more projects
 
-        Usage: rm [PROJECT...]
+        Usage: rm [ARGS...]
         """
-        project.remove()
+        if options.get('ARGS'):
+            args = list(set(options.get('ARGS')))
+        else:
+            args = [raw_input("Please enter the project name: ")]
+        project.remove(args)
 
     # ===================================
     # Start building a new project method
@@ -84,7 +88,7 @@ class StackCommand(object):
         """
         Build and start a new project.
 
-        Usage: start [PROJECT...]
+        Usage: start [ARGS...]
         """
         project.build()
         print "\n"
@@ -97,7 +101,7 @@ class StackCommand(object):
         """
         Stop docker container(s) for the current project
 
-        Usage: stop [PROJECT...]
+        Usage: stop [ARGS...]
         """
         project.stop()
 
