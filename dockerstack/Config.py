@@ -1,21 +1,27 @@
 import os
 import errno
-import json
+import yaml
 from jinja2 import Environment, PackageLoader
 
 
 class Config(object):
+    # Constants
     DEFAULT_TIMEZONE = 'America/Toronto'
+    DEFAULT_PORT = [80]
+
+    # Properties
     data = []
 
     # ===========
     # Constructor
     # ===========
     def __init__(self, path):
-        self.DEFAULT_PORT = [80]
         self.config_path = path
-        with open(self.config_path) as data_file:
-            self.data = json.load(data_file)
+
+        # Load data from YAML file
+        with open(self.config_path, 'r') as stream:
+            self.data = yaml.load(stream)
+
         self.env = Environment(loader=PackageLoader('dockerstack', 'templates'))
 
     # =================
