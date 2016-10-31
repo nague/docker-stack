@@ -8,6 +8,7 @@ import logging
 import re
 import inspect
 
+import yaml
 from dockerstack.Project import Project
 from dockerstack.command.StackCommand import StackCommand
 from dockerstack.docopt_command import DocoptDispatcher
@@ -51,6 +52,8 @@ def perform_command(options, handler, command_options):
     try:
         project = Project()
         handler(StackCommand(), project, command_options)
+    except yaml.YAMLError, exc:
+        print "Error in configuration file:", exc
     except Exception as e:
         print e.message
 
