@@ -38,10 +38,14 @@ class StackCommand(object):
           -f, --file FILE             Specify an alternate stack file.
                                       (default: docker-stack.json)
         """
+        if options.get('PROJECT_NAME'):
+            project_name = options.get('PROJECT_NAME')
+        else:
+            project_name = raw_input("Please enter the project name: ")
         project.build(
+            project_name=project_name,
             force_rebuild=True,
-            config_file=(options.get('--file') or None),
-            project_name=(options.get('PROJECT_NAME')) or None
+            config_file=(options.get('--file') or None)
         )
 
     # ====================
@@ -99,9 +103,13 @@ class StackCommand(object):
           -f, --file FILE             Specify an alternate stack file.
                                       (default: docker-stack.json)
         """
+        if options.get('PROJECT_NAME'):
+            project_name = options.get('PROJECT_NAME')
+        else:
+            project_name = raw_input("Please enter the project name: ")
         project.build(
-            config_file=(options.get('--file') or None),
-            project_name=(options.get('PROJECT_NAME')) or None
+            project_name=project_name,
+            config_file=(options.get('--file') or None)
         )
         print "\n"
         project.start()
@@ -115,7 +123,11 @@ class StackCommand(object):
 
         Usage: stop [PROJECT_NAME]
         """
-        project.stop(project_name=(options.get('PROJECT_NAME')) or None)
+        if options.get('PROJECT_NAME'):
+            project_name = options.get('PROJECT_NAME')
+        else:
+            project_name = raw_input("Please enter the project name: ")
+        project.stop(project_name=project_name)
 
     # ==========================
     # Show version number method
