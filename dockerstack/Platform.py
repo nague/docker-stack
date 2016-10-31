@@ -1,14 +1,15 @@
 from abc import ABCMeta
 
 
-class Platform:
+class Platform(object):
     __metaclass__ = ABCMeta
 
-    # Pre processing
+    # Constructor
     def __init__(self):
         pass
 
+    # Pre processing
     def pre_processing(self): raise NotImplementedError
 
-    # Post processing script
+    # Post processing scripts
     def post_processing(self): raise NotImplementedError

@@ -1,11 +1,11 @@
 from __future__ import print_function
 import subprocess
 
+from dockerstack.command.AbstractDockerCommand import AbstractDockerCommand
 
-class ComposeCommand(object):
 
+class DockerComposeCommand(AbstractDockerCommand):
     DOCKER_COMPOSE_CMD = 'docker-compose'
-    SUDO_CMD = '/usr/bin/sudo'
 
     # ================
     # Start containers
@@ -34,20 +34,6 @@ class ComposeCommand(object):
     def rm(self, project):
         for path in self.execute([self.SUDO_CMD, self.DOCKER_COMPOSE_CMD, '-p', project, 'rm', '-f']):
             print(path, end="")
-
-    # ===========================================
-    # Generator: execute command and yield result
-    # ===========================================
-    def execute(self, cmd):
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-        stdout_lines = iter(p.stdout.readline, "")
-        for stdout_line in stdout_lines:
-            yield stdout_line
-
-        p.stdout.close()
-        return_code = p.wait()
-        if return_code != 0:
-            raise subprocess.CalledProcessError(return_code, cmd)
 
     # ==========================
     # Return version information

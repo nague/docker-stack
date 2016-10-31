@@ -90,9 +90,6 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# Project
-dockerstack/projects/
-
 # PyInstaller
 dockerstack/build/
 dockerstack/dist/

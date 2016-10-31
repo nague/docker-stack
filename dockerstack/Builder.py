@@ -1,5 +1,4 @@
 import os
-
 import dockerstack
 from jinja2 import Environment, PackageLoader
 

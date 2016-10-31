@@ -1,3 +1,5 @@
+from dockerstack.Project import Project
+
 from dockerstack.docopt_command import get_handler
 from dockerstack.utils import get_version_info
 from inspect import getdoc
@@ -8,12 +10,8 @@ class StackCommand(object):
     requires files.
 
     Usage:
-      docker-stack [-f <arg>] [options] [COMMAND] [ARGS...]
+      docker-stack [options] [COMMAND] [ARGS...]
       docker-stack -h|--help
-
-    Options:
-      -f, --file FILE             Specify an alternate stack file (default: docker-stack.json)
-      -p, --project-name NAME     Specify the project name
 
     Commands:
       build              Build a new or existing project
@@ -34,14 +32,21 @@ class StackCommand(object):
         """
         Build a new or existing project
 
-        Usage: build [ARGS...]
+        Usage: build [options] [PROJECT_NAME]
+
+        Options:
+          -f, --file FILE             Specify an alternate stack file.
+                                      (default: docker-stack.json)
         """
-        project.build(force_rebuild=True)
+        project.build(
+            force_rebuild=True,
+            config_file=(options.get('--file') or None),
+            project_name=(options.get('PROJECT_NAME')) or None
+        )
 
     # ====================
     # Help-printing method
     # ====================
-    @classmethod
     def help(cls, options):
         """
         Get help on a command.
@@ -73,13 +78,13 @@ class StackCommand(object):
         """
         Remove one or more projects
 
-        Usage: rm [ARGS...]
+        Usage: rm [PROJECTS...]
         """
-        if options.get('ARGS'):
-            args = list(set(options.get('ARGS')))
+        if options.get('PROJECTS'):
+            projects = list(set(options.get('PROJECTS')))
         else:
-            args = [raw_input("Please enter the project name: ")]
-        project.remove(args)
+            projects = [raw_input("Please enter the project name: ")]
+        project.remove(projects=projects)
 
     # ===================================
     # Start building a new project method
@@ -88,9 +93,16 @@ class StackCommand(object):
         """
         Build and start a new project.
 
-        Usage: start [ARGS...]
+        Usage: start [options] [PROJECT_NAME]
+
+        Options:
+          -f, --file FILE             Specify an alternate stack file.
+                                      (default: docker-stack.json)
         """
-        project.build()
+        project.build(
+            config_file=(options.get('--file') or None),
+            project_name=(options.get('PROJECT_NAME')) or None
+        )
         print "\n"
         project.start()
 
@@ -101,9 +113,9 @@ class StackCommand(object):
         """
         Stop docker container(s) for the current project
 
-        Usage: stop [ARGS...]
+        Usage: stop [PROJECT_NAME]
         """
-        project.stop()
+        project.stop(project_name=(options.get('PROJECT_NAME')) or None)
 
     # ==========================
     # Show version number method

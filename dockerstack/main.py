@@ -49,7 +49,7 @@ def perform_command(options, handler, command_options):
         return
 
     try:
-        project = Project(options)
+        project = Project()
         handler(StackCommand(), project, command_options)
     except Exception as e:
         print e.message

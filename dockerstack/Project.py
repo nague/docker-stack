@@ -3,16 +3,20 @@ import os
 import re
 import shutil
 
+from dockerstack.command.DockerCommand import DockerCommand
+from dockerstack.platform.Default import Default
+from dockerstack.platform.EzPublish import EzPublish
+from dockerstack.platform.Symfony import Symfony
+from dockerstack.platform.WordPress import WordPress
 from git import Repo
 
-from dockerstack.command.ComposeCommand import ComposeCommand
+from dockerstack.command.DockerComposeCommand import DockerComposeCommand
 from dockerstack.Config import Config
 from dockerstack.Builder import Builder
 from dockerstack.Progress import Progress
 
 
 class Project(object):
-
     # Constants
     CURRENT_PATH = os.path.dirname(dockerstack.__file__)
     CONFIG_DIRECTORY = os.path.join(os.path.expanduser('~'), '.config', 'docker-stack')
@@ -27,18 +31,13 @@ class Project(object):
     # Properties
     project_name = None
     config_file = 'docker-stack.json'
+    compose_command = DockerComposeCommand()
+    platform = Default()
 
     # ===========
     # Constructor
     # ===========
-    def __init__(self, options):
-        if options.get('--project-name'):
-            self.project_name = self.get_project_name(options.get('--project-name'))
-        if options.get('--file'):
-            self.config_file = options.get('--file')
-
-        self.compose_command = ComposeCommand()
-
+    def __init__(self):
         # Welcome message when stating app
         print "========= Welcome to {} by {}  ==========\n".format(dockerstack.__name__, dockerstack.__maintainer__)
 
@@ -63,14 +62,25 @@ class Project(object):
     # Start building a new project
     # ============================
     def start(self):
+        # Move at root project directory
         os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+        # Start using `docker-compose up` command
         self.compose_command.start(self.project_name)
+        # After starting container, execute post processing commands
+        print "post-processing"
+        # docker_command = DockerCommand()
+        # docker_command.docker_exec(self.project_name)
 
     # ================
     # Building process
     # ================
-    def build(self, force_rebuild=False):
-        #  1. Ask for project name if not provided
+    def build(self, force_rebuild=False, config_file=None, project_name=None):
+        # 0. Arguments
+        if config_file is not None:
+            self.config_file = config_file
+
+        # 1. Ask for project name if not provided
+        self.project_name = project_name
         if self.project_name is None:
             self.project_name = raw_input("Please enter the project name: ")
 
@@ -151,10 +161,14 @@ class Project(object):
                 )
                 print "Updating database file ... done\n"
 
-        # 7. Init builder
+        # 7. Platform
+        if 'platform' in config['docker']:
+            self.get_platform(config)
+
+        # 8. Init builder
         builder = Builder(project_directory)
 
-        # 8. Generate 'php.ini'
+        # 9. Generate 'php.ini'
         conf_php_path = os.path.join(project_directory, 'conf', 'php')
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
         if not os.path.isdir(conf_php_path):
@@ -168,7 +182,7 @@ class Project(object):
             )
             print "Creating 'php.ini' ... done"
 
-        # 9. Copy virtual host file
+        # 10. Copy virtual host file
         destination_directory = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
         if not os.path.exists(destination_directory):
             os.makedirs(destination_directory)
@@ -180,7 +194,7 @@ class Project(object):
             )
             print "Copy virtual host file ... done"
 
-        # 10. Generate 'Dockerfile'
+        # 11. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
         if 'libs' in config['docker']:
             config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
@@ -193,7 +207,7 @@ class Project(object):
             )
             print "Creating 'Dockerfile' ... done"
 
-        # 11. Generate 'docker-compose.yml'
+        # 12. Generate 'docker-compose.yml'
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
         if not os.path.exists(destination):
             builder.build_docker_compose(
@@ -204,21 +218,22 @@ class Project(object):
             )
             print "Creating 'docker-compose.yml' ... done"
 
-        # 12. Force rebuild
+        # 13. Force rebuild
         if force_rebuild is True:
             print "Starting rebuilding containers ...\n"
             os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
             self.compose_command.build(self.project_name)
             print "Containers rebuilding ... done"
 
-        # 13. Return project name
+        # 14. Return project name
         return self.project_name
 
     # =========================
     # Stop one or more projects
     # =========================
-    def stop(self):
+    def stop(self, project_name=None):
         #  1. Ask for project name if not provided
+        self.project_name = project_name
         if self.project_name is None:
             self.project_name = raw_input("Please enter the project name: ")
 
@@ -235,7 +250,9 @@ class Project(object):
     # ===========================
     # Remove one or more projects
     # ===========================
-    def remove(self, projects):
+    def remove(self, projects=None):
+        if projects is None:
+            projects = []
         for project in projects:
             project_path = os.path.join(self.PROJECTS_DIRECTORY, project)
             if os.path.exists(project_path):
@@ -248,3 +265,18 @@ class Project(object):
                 print "Removing '{}' project ... done".format(project)
             else:
                 print "No such project: '{}'".format(project)
+
+    # ==========================================
+    # Get platform class from configuration file
+    # ==========================================
+    def get_platform(self, config):
+        if str(config['docker']['platform']).lower() == 'symfony':
+            self.platform = Symfony()
+        elif str(config['docker']['platform']).lower() == 'ez' \
+                or str(config['docker']['platform']).lower() == 'ezpublish':
+            self.platform = EzPublish()
+        elif str(config['docker']['platform']).lower() == 'wp' \
+                or str(config['docker']['platform']).lower() == 'wordpress':
+            self.platform = WordPress()
+
+        return self.platform
