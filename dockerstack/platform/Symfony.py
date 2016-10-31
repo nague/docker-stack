@@ -2,11 +2,14 @@ from dockerstack.Platform import Platform
 
 
 class Symfony(Platform):
-
     # Pre processing
     def pre_processing(self):
         # 1. Add composer install script in Dockerfile
-        pass
+        return {
+            'php_ini': '',
+            'dockerfile': self.install_composer_cmd(),
+            'docker_composer': ''
+        }
 
     # Post processing scripts
     def post_processing(self):

@@ -13,3 +13,12 @@ class Platform(object):
 
     # Post processing scripts
     def post_processing(self): raise NotImplementedError
+
+    # Install Composer and make it available in the PATH
+    @staticmethod
+    def install_composer_cmd():
+        script = "# Install Composer and make it available in the PATH\n"
+        script += "RUN wget https://getcomposer.org/composer.phar && " \
+                  "chmod +x composer.phar && " \
+                  "mv composer.phar /usr/local/bin/composer"
+        return script

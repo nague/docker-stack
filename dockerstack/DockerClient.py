@@ -1,0 +1,2 @@
+class DockerClient(object):
+    pass

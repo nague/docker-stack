@@ -39,7 +39,7 @@ class Project(object):
     # ===========
     def __init__(self):
         # Welcome message when stating app
-        print "========= Welcome to {} by {}  ==========\n".format(dockerstack.__name__, dockerstack.__maintainer__)
+        print "========= Welcome to {} by {}  ==========".format(dockerstack.__name__, dockerstack.__maintainer__)
 
         # Create main config directory, it will contains logs, ...
         if not os.path.exists(self.CONFIG_DIRECTORY):
@@ -67,22 +67,20 @@ class Project(object):
         # Start using `docker-compose up` command
         self.compose_command.start(self.project_name)
         # After starting container, execute post processing commands
-        print "post-processing"
         # docker_command = DockerCommand()
         # docker_command.docker_exec(self.project_name)
+        self.platform.post_processing()
 
     # ================
     # Building process
     # ================
-    def build(self, force_rebuild=False, config_file=None, project_name=None):
+    def build(self, project_name, force_rebuild=False, config_file=None):
         # 0. Arguments
         if config_file is not None:
             self.config_file = config_file
 
-        # 1. Ask for project name if not provided
+        #  1. Save project name
         self.project_name = project_name
-        if self.project_name is None:
-            self.project_name = raw_input("Please enter the project name: ")
 
         # 2. Set project directory
         project_directory = os.path.join(self.PROJECTS_DIRECTORY, self.project_name)
@@ -161,9 +159,11 @@ class Project(object):
                 )
                 print "Updating database file ... done\n"
 
-        # 7. Platform
+        # 7. Find current platform from config file
         if 'platform' in config['docker']:
             self.get_platform(config)
+
+        self.platform.pre_processing()
 
         # 8. Init builder
         builder = Builder(project_directory)
@@ -231,11 +231,9 @@ class Project(object):
     # =========================
     # Stop one or more projects
     # =========================
-    def stop(self, project_name=None):
-        #  1. Ask for project name if not provided
+    def stop(self, project_name):
+        #  1. Save project name
         self.project_name = project_name
-        if self.project_name is None:
-            self.project_name = raw_input("Please enter the project name: ")
 
         # 2. If project exists
         project_path = os.path.join(self.PROJECTS_DIRECTORY, self.project_name)
@@ -250,9 +248,7 @@ class Project(object):
     # ===========================
     # Remove one or more projects
     # ===========================
-    def remove(self, projects=None):
-        if projects is None:
-            projects = []
+    def remove(self, projects):
         for project in projects:
             project_path = os.path.join(self.PROJECTS_DIRECTORY, project)
             if os.path.exists(project_path):

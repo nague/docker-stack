@@ -1,5 +1,3 @@
-from dockerstack.Project import Project
-
 from dockerstack.docopt_command import get_handler
 from dockerstack.utils import get_version_info
 from inspect import getdoc
@@ -111,7 +109,6 @@ class StackCommand(object):
             project_name=project_name,
             config_file=(options.get('--file') or None)
         )
-        print "\n"
         project.start()
 
     # =======================================================
