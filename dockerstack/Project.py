@@ -112,6 +112,7 @@ class Project(object):
                     'From witch branch do you want to clone the repository (default: master): ') or 'master'
                 print "We are about to clone your repo '{}' from branch '{}'\n".format(source, branch)
                 validation = yesno("Do you want to continue [Y/n]: ", default=True)
+                print validation
                 if validation is True:
                     Repo.clone_from(
                         source,
@@ -211,9 +212,7 @@ class Project(object):
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
         if not os.path.exists(destination):
             builder.build_docker_compose(
-                os.path.join('docker', self.DOCKER_COMPOSE_FILE),
                 destination,
-                os.path.join(self.CURRENT_PATH, self.TEMPLATES_DIRECTORY, 'services'),
                 config['docker-compose']
             )
             print "Creating 'docker-compose.yml' ... done"

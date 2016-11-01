@@ -42,7 +42,7 @@ class Builder(object):
             f.write(tmpl.render(**args))
 
     # Build 'docker-compose.yml' file
-    def build_docker_compose(self, source, destination, services_dir, args):
+    def build_docker_compose(self, destination, args):
         # Default values
         data = {
             'version': '2',
