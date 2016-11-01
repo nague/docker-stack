@@ -49,6 +49,7 @@ class StackCommand(object):
     # ====================
     # Help-printing method
     # ====================
+    @classmethod
     def help(cls, options):
         """
         Get help on a command.
