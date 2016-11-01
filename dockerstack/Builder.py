@@ -43,7 +43,7 @@ class Builder(object):
 
     # Build 'docker-compose.yml' file
     def build_docker_compose(self, source, destination, services_dir, args):
-        # Minimal sections
+        # Default values
         data = {
             'version': '2',
             'services': {
