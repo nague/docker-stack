@@ -5,6 +5,28 @@ from __future__ import unicode_literals
 import dockerstack
 
 
+# Prompt the user for a yes or no.
+def yesno(prompt, default=None):
+    """
+    Prompt the user for a yes or no.
+    Can optionally specify a default value, which will only be
+    used if they enter a blank line.
+    Unrecognised input (anything other than "y", "n", "yes",
+    "no" or "") will return None.
+    """
+    answer = input(prompt).strip().lower()
+
+    if answer == "y" or answer == "yes":
+        return True
+    elif answer == "n" or answer == "no":
+        return False
+    elif answer == "":
+        return default
+    else:
+        return None
+
+
+# Get version info
 def get_version_info():
     version_info = '{} version {}'.format(dockerstack.__program__, dockerstack.__version__)
     return version_info

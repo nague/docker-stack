@@ -3,11 +3,11 @@ import os
 import re
 import shutil
 
-from dockerstack.command.DockerCommand import DockerCommand
 from dockerstack.platform.Default import Default
 from dockerstack.platform.EzPublish import EzPublish
 from dockerstack.platform.Symfony import Symfony
 from dockerstack.platform.WordPress import WordPress
+from dockerstack.utils import yesno
 from git import Repo
 
 from dockerstack.command.DockerComposeCommand import DockerComposeCommand
@@ -102,8 +102,8 @@ class Project(object):
                     source,
                     os.path.join(project_directory, self.SITE_DIRECTORY)
                 )
-                validation = raw_input("Do you want to continue [Y/n]: ").lower() or 'y'
-                if validation is 'y':
+                validation = yesno("Do you want to continue [Y/n]: ", default=True)
+                if validation is True:
                     os.symlink(source, os.path.join(project_directory, self.SITE_DIRECTORY))
                     print "Creating symlink ... done\n"
             else:
@@ -111,8 +111,8 @@ class Project(object):
                 branch = raw_input(
                     'From witch branch do you want to clone the repository (default: master): ') or 'master'
                 print "We are about to clone your repo '{}' from branch '{}'\n".format(source, branch)
-                validation = raw_input("Do you want to continue [Y/n]: ").lower() or 'y'
-                if validation is 'y':
+                validation = yesno("Do you want to continue [Y/n]: ", default=True)
+                if validation is True:
                     Repo.clone_from(
                         source,
                         os.path.join(project_directory, self.SITE_DIRECTORY),
