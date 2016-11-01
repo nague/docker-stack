@@ -14,7 +14,7 @@ def yesno(prompt, default=None):
     Unrecognised input (anything other than "y", "n", "yes",
     "no" or "") will return None.
     """
-    answer = input(prompt).strip().lower()
+    answer = raw_input(prompt).strip().lower()
 
     if answer == "y" or answer == "yes":
         return True
