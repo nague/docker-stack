@@ -214,7 +214,7 @@ class Project(object):
                 destination,
                 config['docker-compose']
             )
-            print "Creating 'docker-compose.yml' ... done"
+            print "Creating {} ... done".format(self.DOCKER_COMPOSE_FILE)
 
         # 13. Force rebuild
         if force_rebuild is True:
