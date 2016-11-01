@@ -1,8 +1,0 @@
-  # https://hub.docker.com/r/namshi/smtp/
-  smtp:
-    image: namshi/smtp
-    ports:
-      {% if port %}- "{{port}}:25"{% else %}- "25"{% endif %}
-    environment:
-      GMAIL_USER: {{gmail_user}}
-      GMAIL_PASSWORD: {{gmail_password}}

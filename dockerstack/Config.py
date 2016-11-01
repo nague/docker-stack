@@ -32,10 +32,13 @@ class Config(object):
         array = {
             'docker': {},
             'docker-compose': {
+                'ports': self.DEFAULT_PORT,
                 'services': {},
-                'links': {}
+                'links': []
             },
-            'php': {}
+            'php': {
+                'timezone': self.DEFAULT_TIMEZONE
+            }
         }
 
         # List required sections/options from 'docker-stack.ini'
@@ -82,19 +85,15 @@ class Config(object):
             array['docker']['pecl'] = php['pecl']
 
         # docker-compose.yml variables
-        array['docker-compose']['ports'] = self.DEFAULT_PORT
         if 'ports' in webserver:
             array['docker-compose']['ports'] = webserver['ports']
         if services:
             for k, v in services.items():
-                array['docker-compose']['links'][v['link']] = k
                 array['docker-compose']['services'][k] = v
 
         # php.ini variables
         if 'timezone' in php:
             array['php']['timezone'] = php['timezone']
-        else:
-            array['php']['timezone'] = self.DEFAULT_TIMEZONE
 
         return array
 

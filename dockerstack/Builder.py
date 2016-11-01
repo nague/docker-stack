@@ -1,5 +1,8 @@
 import os
 import dockerstack
+import yaml
+
+from dockerstack.Services import Services
 from jinja2 import Environment, PackageLoader
 
 
@@ -40,19 +43,32 @@ class Builder(object):
 
     # Build 'docker-compose.yml' file
     def build_docker_compose(self, source, destination, services_dir, args):
-        tpl = self.env.get_template(source)
-        args['services_render'] = ''
+        # Minimal sections
+        data = {
+            'version': '2',
+            'services': {
+                'web': {
+                    'restart': 'yes',
+                    'build': '.',
+                    'ports': args['ports'],
+                    'volumes': ['./www:/var/www/html']
+                }
+            }
+        }
 
-        for k, s in args['services'].items():
-            service_file = os.path.join('services', s['link'] + '.yml')
-            if os.path.exists(os.path.join(services_dir, s['link'] + '.yml')):
-                s_tpl = self.env.get_template(service_file)
-                args['services_render'] += s_tpl.render(**s)
-                args['services_render'] += "\n\n"
+        # If services exists, call Services().<service_name>() and add links to 'web'
+        service_class = Services()
+        if 'services' in args:
+            data['services']['web']['links'] = []
+            for k, s in args['services'].items():
+                service = s['link']
+                data['services']['web']['links'] += ['{}:{}'.format(service, k)]
+                if hasattr(service_class, service):
+                    data['services'][service] = getattr(service_class, service)(s)
 
         # Write final file including variables
-        with open(destination, 'w') as f:
-            f.write(tpl.render(**args))
+        with open(destination, 'w') as outfile:
+            yaml.dump(data, outfile, default_flow_style=False, explicit_start=False)
 
     # Build 'php.ini' file
     def build_php_ini(self, source, destination, args):
