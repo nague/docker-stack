@@ -251,9 +251,11 @@ class Project(object):
             project_path = os.path.join(self.PROJECTS_DIRECTORY, project)
             if os.path.exists(project_path):
                 # Stop containers
-                os.chdir(project_path)
-                self.compose_command.stop(project)
-                self.compose_command.rm(project)
+                # Checking `docker-compose.yml` exists before
+                if os.path.exists(os.path.join(project, self.DOCKER_COMPOSE_FILE)):
+                    os.chdir(project_path)
+                    self.compose_command.stop(project)
+                    self.compose_command.rm(project)
                 # Remove project directory
                 shutil.rmtree(project_path)
                 print "Removing '{}' project ... done".format(project)
