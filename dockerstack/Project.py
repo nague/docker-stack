@@ -177,7 +177,6 @@ class Project(object):
             print "Creating '{}' directory ... done".format(conf_php_path)
         if not os.path.exists(destination):
             builder.build_php_ini(
-                os.path.join('php', self.PHP_INI_FILE),
                 destination,
                 config['php']
             )

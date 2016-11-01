@@ -1,3 +1,4 @@
+import ConfigParser
 import os
 import dockerstack
 import yaml
@@ -42,7 +43,8 @@ class Builder(object):
             f.write(tmpl.render(**args))
 
     # Build 'docker-compose.yml' file
-    def build_docker_compose(self, destination, args):
+    @staticmethod
+    def build_docker_compose(destination, args):
         # Default values
         data = {
             'version': '2',
@@ -71,9 +73,11 @@ class Builder(object):
             yaml.dump(data, outfile, default_flow_style=False, explicit_start=False)
 
     # Build 'php.ini' file
-    def build_php_ini(self, source, destination, args):
-        tpl = self.env.get_template(source)
-
-        # Write final file including variables
-        with open(destination, 'w') as f:
-            f.write(tpl.render(**args))
+    @staticmethod
+    def build_php_ini(destination, args):
+        config_parser = ConfigParser.ConfigParser()
+        php_ini = open(destination, 'w')
+        config_parser.add_section('Date')
+        config_parser.set('Date', 'date.timezone', args['timezone'])
+        config_parser.write(php_ini)
+        php_ini.close()
