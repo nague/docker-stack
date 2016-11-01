@@ -112,7 +112,6 @@ class Project(object):
                     'From witch branch do you want to clone the repository (default: master): ') or 'master'
                 print "We are about to clone your repo '{}' from branch '{}'\n".format(source, branch)
                 validation = yesno("Do you want to continue [Y/n]: ", default=True)
-                print validation
                 if validation is True:
                     Repo.clone_from(
                         source,
