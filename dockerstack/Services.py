@@ -6,6 +6,7 @@ class Services(object):
         # Default values
         data = {
             'restart': 'always',
+            'ports': [3306],
             'volumes': ['./db:/docker-entrypoint-initdb.d'],
             'environment': {}
         }
@@ -16,8 +17,6 @@ class Services(object):
         # Ports
         if 'ports' in args:
             data['ports'] = args['ports']
-        else:
-            data['ports'] = [3306]
         # MYSQL environment keys
         for key in [
             'user',
@@ -39,13 +38,12 @@ class Services(object):
         # Default values
         data = {
             'image': 'namshi/smtp',
+            'ports': [25],
             'environment': {}
         }
         # Ports
         if 'ports' in args:
             data['ports'] = args['ports']
-        else:
-            data['ports'] = [25]
         # SMTP environment keys
         for key in [
             'key_path',
