@@ -34,7 +34,7 @@ class StackCommand(object):
 
         Options:
           -f, --file FILE             Specify an alternate stack file.
-                                      (default: docker-stack.json)
+                                      (default: docker-stack.yml)
         """
         if options.get('PROJECT_NAME'):
             project_name = options.get('PROJECT_NAME')
@@ -99,7 +99,7 @@ class StackCommand(object):
 
         Options:
           -f, --file FILE             Specify an alternate stack file.
-                                      (default: docker-stack.json)
+                                      (default: docker-stack.yml)
         """
         if options.get('PROJECT_NAME'):
             project_name = options.get('PROJECT_NAME')
