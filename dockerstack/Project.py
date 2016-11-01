@@ -222,7 +222,7 @@ class Project(object):
         if force_rebuild is True:
             print "Starting rebuilding containers ...\n"
             os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
-            self.compose_command.build(self.project_name)
+            self.compose_command.create(self.project_name, force=True)
             print "Containers rebuilding ... done"
 
         # 14. Return project name
