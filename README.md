@@ -4,12 +4,12 @@ Docker Stack by Kaliop
 Usage
 -----
 ```bash
-Usage:
-  docker-stack [-p <arg>...] [options] [COMMAND] [ARGS...]
-  docker-stack -h|--help
+An utility to Dockerize your applications and generate minimal docker
+requires files.
 
-Options:
-  -p, --project-name NAME     Specify the project name
+Usage:
+  docker-stack [options] [COMMAND] [ARGS...]
+  docker-stack -h|--help
 
 Commands:
   build              Build a new or existing project
@@ -19,6 +19,8 @@ Commands:
   start              Build and start a new project
   stop               Stop docker container(s) for the current project
   version            Display version number
+
+Run 'docker-stack COMMAND --help' for more information on a command.
 ```
 
 Dependencies
@@ -27,3 +29,4 @@ Dependencies
 * GitPython `pip install gitpython`
 * Jinja2 `pip install Jinja2`
 * docopt `pip install docopt`
+* PyYAML `pip install pyyaml`
