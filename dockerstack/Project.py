@@ -31,7 +31,7 @@ class Project(object):
 
     # Properties
     project_name = None
-    config_file = 'docker-stack.json'
+    config_file = 'docker-stack.yml'
     compose_command = DockerComposeCommand()
     platform = Default()
 
@@ -125,7 +125,7 @@ class Project(object):
                 else:
                     raise Exception("Aborting ...")
 
-        # 5. Read 'docker-stack.json' file
+        # 5. Read 'docker-stack.yml' file
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.config_file)
         if not os.path.exists(config_path):
             raise Exception("Error: '{}' not found ... aborting".format(self.config_file))
