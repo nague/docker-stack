@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import os
 import sys
 import functools
 import logging
@@ -21,6 +22,14 @@ console_handler = logging.StreamHandler(sys.stderr)
 
 
 def main():
+    user = os.getenv("SUDO_USER")
+    if user:
+        print "Since docker-stack is a user command, there is no need to execute it with superuser permissions."
+        print "If you're having permission errors when using 'docker-stack' without sudo."
+        print "Please spend a few minutes learning more about how your system should work and make any necessary " \
+              "repairs."
+        exit(1)
+
     command = dispatch()
 
     try:
