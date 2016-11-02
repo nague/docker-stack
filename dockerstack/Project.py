@@ -253,10 +253,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             )
             print "Creating {} ... done".format(self.DOCKER_COMPOSE_FILE)
 
-        # 13. Force rebuild
+        # 13. Force rebuild and recreate containers
         if force_rebuild is True:
             print "Starting rebuilding containers ...\n"
             os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
+            self.compose_command.build(self.project_name)
             self.compose_command.create(self.project_name, force=True)
             print "Containers rebuilding ... done"
 
