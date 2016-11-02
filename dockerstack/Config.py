@@ -83,6 +83,8 @@ class Config(object):
             array['docker']['enable'] = php['enable']
         if 'pecl' in php:
             array['docker']['pecl'] = php['pecl']
+        if 'modules' in webserver:
+            array['docker']['modules'] = webserver['modules']
 
         # docker-compose.yml variables
         if 'ports' in webserver:
