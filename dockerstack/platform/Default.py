@@ -2,11 +2,10 @@ from dockerstack.Platform import Platform
 
 
 class Default(Platform):
-
+    # Pre processing
     def pre_processing(self):
-        print 'Nothing to update'
-        return
+        return {'php_ini': '', 'dockerfile': '', 'docker_composer': ''}
 
+    # Post processing scripts
     def post_processing(self):
-        print 'No scripts after run'
         return

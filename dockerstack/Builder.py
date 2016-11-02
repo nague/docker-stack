@@ -20,15 +20,6 @@ class Builder(object):
     def build_dockerfile(self, source, destination, args):
         tmpl = self.env.get_template(source)
 
-        # Arguments to pass to template
-        args['extra'] = ''
-        # Check extra template
-        if 'platform' in args:
-            extra = os.path.join(self.CURRENT_PATH, 'templates', 'extra', args['platform'], 'Dockerfile')
-            if os.path.exists(extra):
-                e = open(extra)
-                args['extra'] = e.read()
-
         # PHP ext configure
         args['configure'] = []
         if 'extensions' in args:
