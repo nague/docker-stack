@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 
+from dockerstack.command.DockerCommand import DockerCommand
 from dockerstack.platform.Default import Default
 from dockerstack.platform.EzPublish import EzPublish
 from dockerstack.platform.Symfony import Symfony
@@ -67,9 +68,10 @@ class Project(object):
         # Start using `docker-compose up` command
         self.compose_command.start(self.project_name)
         # After starting container, execute post processing commands
+        print "Running post-processing scripts\n"
         # docker_command = DockerCommand()
         # docker_command.docker_exec(self.project_name)
-        self.platform.post_processing()
+        # self.platform.post_processing()
 
     # ================
     # Building process
@@ -163,7 +165,9 @@ class Project(object):
         if 'platform' in config['docker']:
             self.get_platform(config)
 
+        # pre-Processing for Platform
         self.platform.pre_processing()
+        pre = self.platform.get_pre_processing_data()
 
         # 8. Init builder
         builder = Builder(project_directory)
@@ -199,6 +203,7 @@ class Project(object):
             config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
         if not os.path.exists(destination):
             config['docker']['maintainer'] = dockerstack.__maintainer__
+            config['docker']['extra'] = pre['dockerfile']
             builder.build_dockerfile(
                 os.path.join('docker', self.DOCKERFILE_FILE),
                 destination,
@@ -251,7 +256,7 @@ class Project(object):
             if os.path.exists(project_path):
                 # Stop containers
                 # Checking `docker-compose.yml` exists before
-                if os.path.exists(os.path.join(project, self.DOCKER_COMPOSE_FILE)):
+                if os.path.exists(os.path.join(project_path, self.DOCKER_COMPOSE_FILE)):
                     os.chdir(project_path)
                     self.compose_command.stop(project)
                     self.compose_command.rm(project)
