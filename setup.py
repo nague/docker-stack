@@ -29,7 +29,10 @@ install_requires = [
     'gitpython >= 2',
     'jinja2 >= 2',
     'docopt >= 0.6.1, < 0.7',
-    'pyyaml >= 3.12'
+    'pyyaml >= 3.12',
+    'validators',
+    'requests',
+    'clint'
 ]
 
 setup(
