@@ -30,3 +30,7 @@ Dependencies
 * Jinja2 `pip install Jinja2`
 * docopt `pip install docopt`
 * PyYAML `pip install pyyaml`
+
+Contributors
+------------
+* DSanchez <david38sanchez@gmail.com>
