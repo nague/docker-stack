@@ -3,7 +3,6 @@ import os
 import dockerstack
 import yaml
 
-from dockerstack.Services import Services
 from jinja2 import Environment, PackageLoader
 
 
@@ -41,23 +40,21 @@ class Builder(object):
             'version': '2',
             'services': {
                 'web': {
-                    'restart': 'yes',
                     'build': '.',
-                    'ports': args['ports'],
+                    'restart': 'yes',
                     'volumes': ['./www:/var/www/html']
                 }
             }
         }
-
-        # If services exists, call Services().<service_name>() and add links to 'web'
-        service_class = Services()
+        # Set ports if provided
+        if 'ports' in args:
+            data['services']['web']['ports'] = args['ports']
+        # Add additional services
         if 'services' in args:
-            data['services']['web']['links'] = []
-            for k, s in args['services'].items():
-                service = s['link']
-                data['services']['web']['links'] += ['{}:{}'.format(service, k)]
-                if hasattr(service_class, service):
-                    data['services'][service] = getattr(service_class, service)(s)
+            data['services'].update(args['services'])
+        # Set volumes if provided
+        if 'volumes' in args:
+            data['volumes'] = args['volumes']
 
         # Write final file including variables
         with open(destination, 'w') as outfile:

@@ -60,9 +60,6 @@ class Config(object):
         general = self.data['general']
         webserver = self.data['webserver']
         php = self.data['php']
-        services = None
-        if 'services' in self.data:
-            services = self.data['services']
 
         # Database path
         if 'db_path' in general:
@@ -89,9 +86,10 @@ class Config(object):
         # docker-compose.yml variables
         if 'ports' in webserver:
             array['docker-compose']['ports'] = webserver['ports']
-        if services:
-            for k, v in services.items():
-                array['docker-compose']['services'][k] = v
+        if 'services' in self.data:
+            array['docker-compose']['services'] = self.data['services']
+        if 'volumes' in self.data:
+            array['docker-compose']['volumes'] = self.data['volumes']
 
         # php.ini variables
         if 'timezone' in php:

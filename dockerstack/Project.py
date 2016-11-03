@@ -216,7 +216,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 destination,
                 config['php']
             )
-            print "Creating 'php.ini' ... done"
+            print "Creating '{}' ... done".format(self.PHP_INI_FILE)
 
         # 10. Copy virtual host file
         destination_directory = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
@@ -242,7 +242,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 destination,
                 config['docker']
             )
-            print "Creating 'Dockerfile' ... done"
+            print "Creating '{}' ... done".format(self.DOCKERFILE_FILE)
 
         # 12. Generate 'docker-compose.yml'
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
