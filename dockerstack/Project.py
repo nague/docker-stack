@@ -1,9 +1,11 @@
+import requests
 import dockerstack
 import os
 import re
 import shutil
 
-from dockerstack.command.DockerCommand import DockerCommand
+import validators
+from clint.textui import progress
 from dockerstack.platform.Default import Default
 from dockerstack.platform.EzPublish import EzPublish
 from dockerstack.platform.Symfony import Symfony
@@ -106,7 +108,7 @@ SOFTWARE.
         if config_file is not None:
             self.config_file = config_file
 
-        #  1. Save project name
+        # 1. Save project name
         self.project_name = project_name
 
         # 2. Set project directory
@@ -164,27 +166,9 @@ SOFTWARE.
             if not os.path.exists(db_dir):
                 os.makedirs(db_dir)
                 print "Creating directory '{}' ... done\n".format(os.path.join('projects', self.project_name, 'db'))
-            db_destination_file = os.path.join(db_dir, os.path.basename(config['db']))
-            db_source_file = os.path.join(project_directory, self.SITE_DIRECTORY, config['db'])
-            # Check database source file exists
-            if not os.path.exists(db_source_file):
-                raise Exception("Database file '{}' does not exists ... aborting".format(db_source_file))
-            # Copy database file to 'db' directory if not exists already
-            if not os.path.exists(db_destination_file):
-                print "Database file '{}' found".format(os.path.basename(config['db']))
-                shutil.copyfile(
-                    db_source_file,
-                    db_destination_file
-                )
-                print "Copying database file ... done\n"
-            # Updating database file if source has been updated
-            elif not os.path.getsize(db_destination_file) == os.path.getsize(db_source_file):
-                shutil.rmtree(db_destination_file)
-                shutil.copyfile(
-                    db_source_file,
-                    db_destination_file
-                )
-                print "Updating database file ... done\n"
+
+            # Get database file(s)
+            self._get_database_files(config['db'], db_dir, project_directory)
 
         # 7. Find current platform from config file
         if 'platform' in config['docker']:
@@ -306,3 +290,53 @@ SOFTWARE.
             self.platform = WordPress()
 
         return self.platform
+
+    # Get database from multiple sources:
+    # - path
+    # - ftp/http(s) url (with/without auth)
+    def _get_database_files(self, path, db_dir, project_directory):
+        # Transform string to list
+        if type(path) is str:
+            path = [path]
+
+        # Loop over list
+        for p in path:
+            destination = os.path.join(db_dir, os.path.basename(p))
+            if validators.url(p):
+                r = requests.get(p, stream=True)
+                if r.status_code == 200:
+                    # If destination not exists
+                    # or if size is not the same
+                    # then download file
+                    if not os.path.exists(destination) or \
+                            (int(r.headers.get('content-length')) != int(os.path.getsize(destination))):
+                        with open(destination, 'wb') as f:
+                            total_length = int(r.headers.get('content-length'))
+                            for chunk in progress.bar(r.iter_content(chunk_size=1024),
+                                                      expected_size=(total_length / 1024) + 1):
+                                if chunk:
+                                    f.write(chunk)
+                                    f.flush()
+                else:
+                    print "Error: {}".format(r.reason)
+            else:
+                source = os.path.join(project_directory, self.SITE_DIRECTORY, p)
+                # Check database source file exists
+                if not os.path.exists(source):
+                    raise Exception("Database file '{}' does not exists ... aborting".format(source))
+                # Copy database file to 'db' directory if not exists already
+                if not os.path.exists(destination):
+                    print "Database file '{}' found".format(os.path.basename(p))
+                    shutil.copyfile(
+                        source,
+                        destination
+                    )
+                    print "Copying database file ... done\n"
+                # Updating database file if source has been updated
+                elif not os.path.getsize(destination) == os.path.getsize(source):
+                    shutil.rmtree(destination)
+                    shutil.copyfile(
+                        source,
+                        destination
+                    )
+                    print "Updating database file ... done\n"
