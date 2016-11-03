@@ -16,7 +16,7 @@ RUN apt-get update && \
 		{% for lib in libs %}{{lib}} {% endfor %}
 
 {% if pecl %}# PECL install extensions
-RUN pecl install {% for p in pecl %}{{p}} {% endfor %}{% endif %}
+{% for p in pecl %}RUN pecl install {{p}} && docker-php-ext-enable {{p}}{% endfor %}{% endif %}
 
 {% if configure %}# Docker PHP extension configure
 RUN {% for ext in configure %}docker-php-ext-configure {{ext}} {% if not loop.last %}&& {% endif %}{% endfor %}{% endif %}
