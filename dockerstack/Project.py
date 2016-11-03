@@ -77,7 +77,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ==============================================================================
             """.format(dockerstack.__name__, dockerstack.__maintainer__)
-            validation = yesno("Do you agree to terms? [Y/n]: ", default=True)
+            validation = yesno("Do you agree to terms? [y/n]: ")
             if validation is True:
                 os.makedirs(self.PROJECTS_DIRECTORY)
             else:
