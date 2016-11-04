@@ -55,6 +55,9 @@ class Builder(object):
         # Set ports if provided
         if 'ports' in args:
             data['services']['web']['ports'] = args['ports']
+        # Add links
+        if 'links' in args:
+            data['services']['web']['links'] = args['links']
         # Add additional services
         if 'services' in args:
             data['services'].update(args['services'])

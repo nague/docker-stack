@@ -86,6 +86,8 @@ class Config(object):
         # docker-compose.yml variables
         if 'ports' in webserver:
             array['docker-compose']['ports'] = webserver['ports']
+        if 'links' in general:
+            array['docker-compose']['links'] = general['links']
         if 'services' in self.data:
             array['docker-compose']['services'] = self.data['services']
         if 'volumes' in self.data:
