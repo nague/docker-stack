@@ -1,5 +1,5 @@
-Docker Stack by Kaliop
-======================
+Docker Stack by Kaliop Canada Inc.
+==================================
 
 Usage
 -----
@@ -31,6 +31,6 @@ Dependencies
 * docopt `pip install docopt`
 * PyYAML `pip install pyyaml`
 
-Contributors
-------------
+Maintainer
+----------
 * DSanchez <david38sanchez@gmail.com>
