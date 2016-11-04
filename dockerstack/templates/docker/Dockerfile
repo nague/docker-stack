@@ -32,11 +32,10 @@ RUN {% for e in enable %}docker-php-ext-enable {{e}} {% if not loop.last %}&& {%
 {% if server_engine == 'apache2' %}
 # Enable site Apache2
 RUN a2ensite {{site}}
-
-{% if modules %}{% for module in modules %}
+{% if modules %}# Enable Apache2 modules
+{% for module in modules %}
 RUN a2enmod {{module}}
 {% endfor %}{% endif %}
-
 # Restart Apache
 RUN service apache2 restart
 {% endif %}
