@@ -30,6 +30,7 @@ class Project(object):
     DOCKERFILE_FILE = 'Dockerfile'
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     DEFAULT_LIBS = ['wget', 'git', 'curl', 'zip', 'vim', 'vi', 'nano']
+    DEFAULT_MODULES = ['rewrite']
 
     # Properties
     project_name = None
@@ -193,6 +194,12 @@ class Project(object):
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
         if 'libs' in config['docker']:
             config['docker']['libs'] = set(config['docker']['libs'] + self.DEFAULT_LIBS)
+        else:
+            config['docker']['libs'] = self.DEFAULT_LIBS
+        if 'modules' in config['docker']:
+            config['docker']['modules'] = set(config['docker']['modules'] + self.DEFAULT_MODULES)
+        else:
+            config['docker']['modules'] = self.DEFAULT_MODULES
         if not os.path.exists(destination):
             config['docker']['maintainer'] = dockerstack.__maintainer__
             config['docker']['extra'] = pre['dockerfile']
