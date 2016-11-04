@@ -29,7 +29,7 @@ class Project(object):
     PHP_INI_FILE = 'php.ini'
     DOCKERFILE_FILE = 'Dockerfile'
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
-    DEFAULT_LIBS = ['wget', 'git', 'curl', 'zip']
+    DEFAULT_LIBS = ['wget', 'git', 'curl', 'zip', 'vim', 'vi', 'nano']
 
     # Properties
     project_name = None
