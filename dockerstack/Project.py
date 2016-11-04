@@ -308,11 +308,11 @@ SOFTWARE.
                     # If destination not exists
                     # or if size is not the same
                     # then download file
-                    if not os.path.exists(destination) or \
-                            (int(r.headers.get('content-length')) != int(os.path.getsize(destination))):
+                    total_length = int(r.headers.get('content-length'))
+                    if not os.path.exists(destination) or (int(total_length) != int(os.path.getsize(destination))):
                         with open(destination, 'wb') as f:
-                            total_length = int(r.headers.get('content-length'))
-                            for chunk in progress.bar(r.iter_content(chunk_size=1024),
+                            for chunk in progress.bar(r.iter_content(chunk_size=1024), width=50,
+                                                      label="Downloading ... {} ".format(os.path.basename(p)),
                                                       expected_size=(total_length / 1024) + 1):
                                 if chunk:
                                     f.write(chunk)
@@ -334,7 +334,6 @@ SOFTWARE.
                     print "Copying database file ... done\n"
                 # Updating database file if source has been updated
                 elif not os.path.getsize(destination) == os.path.getsize(source):
-                    shutil.rmtree(destination)
                     shutil.copyfile(
                         source,
                         destination
