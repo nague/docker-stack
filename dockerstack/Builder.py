@@ -10,12 +10,16 @@ class Builder(object):
 
     CURRENT_PATH = os.path.dirname(dockerstack.__file__)
 
+    # ===========
     # Constructor
+    # ===========
     def __init__(self, project_directory):
         self.project_directory = project_directory
         self.env = Environment(loader=PackageLoader('dockerstack', 'templates'))
 
+    # =======================
     # Build 'Dockerfile' file
+    # =======================
     def build_dockerfile(self, source, destination, args):
         tmpl = self.env.get_template(source)
 
@@ -32,7 +36,9 @@ class Builder(object):
         with open(destination, 'w') as f:
             f.write(tmpl.render(**args))
 
+    # ===============================
     # Build 'docker-compose.yml' file
+    # ===============================
     @staticmethod
     def build_docker_compose(destination, args):
         # Default values
@@ -60,12 +66,20 @@ class Builder(object):
         with open(destination, 'w') as outfile:
             yaml.dump(data, outfile, default_flow_style=False, explicit_start=False)
 
+    # ====================
     # Build 'php.ini' file
+    # ====================
     @staticmethod
     def build_php_ini(destination, args):
         config_parser = ConfigParser.ConfigParser()
         php_ini = open(destination, 'w')
+
+        # [PHP]
+        config_parser.add_section('PHP')
+        config_parser.set('PHP', 'memory_limit', '-1')
+        # [Date]
         config_parser.add_section('Date')
         config_parser.set('Date', 'date.timezone', args['timezone'])
+
         config_parser.write(php_ini)
         php_ini.close()
