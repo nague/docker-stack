@@ -11,7 +11,7 @@ class AbstractDockerCommand(object):
     # Generator: execute command and yield result
     # ===========================================
     @staticmethod
-    def execute(cmd):
+    def _execute(cmd):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
         stdout_lines = iter(p.stdout.readline, "")
         for stdout_line in stdout_lines:

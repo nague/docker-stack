@@ -8,10 +8,11 @@ class Symfony(Platform):
         self.set_docker_data(self.install_composer_cmd())
 
     # Post processing assignments
-    def post_processing(self):
+    def post_processing(self, compose_command):
         # 1. Run `composer install`
         # 2. Run `assets:install`
         # 3. Run `assetic:dump`
         # 4. Run `chmod 777`
         # 5. Run `apache2-foreground`
+        compose_command.execute(command='composer')
         pass

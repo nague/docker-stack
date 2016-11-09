@@ -80,9 +80,7 @@ class Project(object):
         self.compose_command.start(self.project_name)
         # After starting container, execute post processing commands
         print "Running post-processing scripts\n"
-        # docker_command = DockerCommand()
-        # docker_command.docker_exec(self.project_name)
-        # self.platform.post_processing()
+        self.platform.post_processing(self.compose_command)
 
     # ================
     # Building process
@@ -324,6 +322,7 @@ class Project(object):
                     print "Copying database file ... done\n"
                 # Updating database file if source has been updated
                 elif not os.path.getsize(destination) == os.path.getsize(source):
+                    shutil.rmtree(destination)
                     shutil.copyfile(
                         source,
                         destination

@@ -13,7 +13,7 @@ class Platform(object):
     def pre_processing(self): raise NotImplementedError
 
     # Post processing scripts
-    def post_processing(self): raise NotImplementedError
+    def post_processing(self, compose_command): raise NotImplementedError
 
     # Add data to Dockerfile
     def set_docker_data(self, data):

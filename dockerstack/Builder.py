@@ -47,7 +47,7 @@ class Builder(object):
             'services': {
                 'web': {
                     'build': '.',
-                    'restart': 'yes',
+                    'restart': 'yes', #TODO: optional, add to documentation en Wiki
                     'volumes': ['./www:/var/www/html']
                 }
             }
