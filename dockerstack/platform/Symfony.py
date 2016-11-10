@@ -14,5 +14,5 @@ class Symfony(Platform):
         # 3. Run `assetic:dump`
         # 4. Run `chmod 777`
         # 5. Run `apache2-foreground`
-        compose_command.execute(command='composer')
+        # compose_command.execute(command='composer')
         pass

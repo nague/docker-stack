@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
+import datetime
 import dockerstack
 
 
@@ -28,5 +29,9 @@ def yesno(prompt, default=None):
 
 # Get version info
 def get_version_info():
-    version_info = '{} version {}'.format(dockerstack.__program__, dockerstack.__version__)
-    return version_info
+    return '{} version {}, build {}'.format(dockerstack.__program__, dockerstack.__version__, get_build_version())
+
+
+# Get build version
+def get_build_version():
+    return datetime.datetime.now().time()
