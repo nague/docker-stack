@@ -50,7 +50,7 @@ class Project(object):
         if not os.path.exists(self.PROJECTS_DIRECTORY):
             print "================== Welcome to {} by {}  ==================".\
                 format(dockerstack.__name__, dockerstack.__maintainer__)
-            f = open('LICENSE.md', 'r')
+            f = open(os.path.join(os.path.dirname(self.CURRENT_PATH), 'LICENSE.md'), 'r')
             content = f.read()
             print content
             f.close()
