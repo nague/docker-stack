@@ -322,7 +322,7 @@ class Project(object):
                     print "Copying database file ... done\n"
                 # Updating database file if source has been updated
                 elif not os.path.getsize(destination) == os.path.getsize(source):
-                    shutil.rmtree(destination)
+                    os.remove(destination)
                     shutil.copyfile(
                         source,
                         destination
