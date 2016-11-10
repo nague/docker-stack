@@ -2,14 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-import os
-import sys
-import functools
-import logging
-import re
-import inspect
-
-import yaml
 from dockerstack.Project import Project
 from dockerstack.command.StackCommand import StackCommand
 from dockerstack.docopt_command import DocoptDispatcher
@@ -17,19 +9,19 @@ from dockerstack.docopt_command import NoSuchCommand
 from . import signals
 from .utils import get_version_info
 
+import os
+import sys
+import functools
+import logging
+import re
+import inspect
+import yaml
+
 log = logging.getLogger(__name__)
 console_handler = logging.StreamHandler(sys.stderr)
 
 
 def main():
-    user = os.getenv("SUDO_USER")
-    if user:
-        print "Since docker-stack is a user command, there is no need to execute it with superuser permissions."
-        print "If you're having permission errors when using 'docker-stack' without sudo."
-        print "Please spend a few minutes learning more about how your system should work and make any necessary " \
-              "repairs."
-        exit(1)
-
     command = dispatch()
 
     try:
@@ -59,6 +51,12 @@ def perform_command(options, handler, command_options):
         return
 
     try:
+        if os.getuid() == 0:
+            raise Exception("Since docker-stack is a user command, there is no need to execute it with superuser "
+                            "permissions.\nIf you're having permission errors when using 'docker-stack' without sudo.\n"
+                            "Please spend a few minutes learning more about how your system should work and make any "
+                            "necessary repairs.")
+
         project = Project()
         handler(StackCommand(), project, command_options)
     except yaml.YAMLError, exc:

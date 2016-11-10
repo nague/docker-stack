@@ -32,7 +32,8 @@ install_requires = [
     'pyyaml >= 3.12',
     'validators',
     'requests',
-    'clint'
+    'clint',
+    'yaml'
 ]
 
 setup(
