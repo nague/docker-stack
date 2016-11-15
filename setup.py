@@ -33,7 +33,7 @@ install_requires = [
     'validators',
     'requests',
     'clint',
-    'yaml'
+    'PyYAML >= 3.08'
 ]
 
 setup(
