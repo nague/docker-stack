@@ -180,13 +180,12 @@ class Project(object):
         destination_directory = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
         if not os.path.exists(destination_directory):
             os.makedirs(destination_directory)
-        destination_path = os.path.join(destination_directory, config['docker']['site'])
-        if not os.path.exists(destination_path):
-            shutil.copyfile(
-                os.path.join(project_directory, self.SITE_DIRECTORY, config['docker']['vhost']),
-                destination_path
-            )
-            print "Copy virtual host file ... done"
+        for vhost in config['docker']['vhost']:
+            source_path = os.path.join(project_directory, self.SITE_DIRECTORY, vhost)
+            destination_path = os.path.join(destination_directory, os.path.basename(vhost))
+            if not os.path.exists(destination_path):
+                shutil.copyfile(source_path, destination_path)
+                print "Copy virtual host files '{}' ... done".format(vhost)
 
         # 11. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)

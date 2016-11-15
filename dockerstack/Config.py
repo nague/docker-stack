@@ -69,8 +69,17 @@ class Config(object):
 
         # Dockerfile variables
         array['docker']['server_engine'] = webserver['engine']
-        array['docker']['vhost'] = webserver['vhost']
-        array['docker']['site'] = os.path.basename(webserver['vhost'])
+        array['docker']['sites'] = []
+        array['docker']['vhost'] = []
+        if type(webserver['vhost']) is dict:
+            array['docker']['vhost'] = webserver['vhost']['available'] + webserver['vhost']['enable']
+            for key, value in webserver['vhost'].items():
+                if key == 'enable':
+                    for site in value:
+                        array['docker']['sites'].append(os.path.basename(site))
+        else:
+            array['docker']['vhost'].append(webserver['vhost'])
+            array['docker']['sites'] = [os.path.basename(webserver['vhost'])]
         array['docker']['version'] = php['version']
         if 'libs' in general:
             array['docker']['libs'] = general['libs']
