@@ -30,7 +30,9 @@ class Config(object):
     def parse_config(self):
         # Return array with key
         array = {
-            'docker': {},
+            'docker': {
+                'image': 'php'
+            },
             'docker-compose': {
                 'ports': self.DEFAULT_PORT,
                 'services': {},
@@ -69,9 +71,11 @@ class Config(object):
         array['docker']['server_engine'] = webserver['engine']
         array['docker']['vhost'] = webserver['vhost']
         array['docker']['site'] = os.path.basename(webserver['vhost'])
-        array['docker']['image'] = php['version']
+        array['docker']['version'] = php['version']
         if 'libs' in general:
             array['docker']['libs'] = general['libs']
+        if 'image' in php:
+            array['docker']['image'] = php['image']
         if 'extensions' in php:
             array['docker']['extensions'] = php['extensions']
         if 'platform' in general:
@@ -84,6 +88,8 @@ class Config(object):
             array['docker']['modules'] = webserver['modules']
 
         # docker-compose.yml variables
+        if 'restart' in general:
+            array['docker-compose']['general'] = general['restart']
         if 'ports' in webserver:
             array['docker-compose']['ports'] = webserver['ports']
         if 'links' in general:

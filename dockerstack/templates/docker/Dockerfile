@@ -1,7 +1,7 @@
 # Start from PHP
 # Take a look at the PHP container documentation on the Dockerhub for more detailed
 # info on running the container: https://hub.docker.com/_/php/
-FROM php:{{image}}
+FROM {{image}}:{{version}}
 MAINTAINER {{maintainer}}
 
 # Copy PHP config file

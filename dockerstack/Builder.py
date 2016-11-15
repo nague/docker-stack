@@ -47,11 +47,13 @@ class Builder(object):
             'services': {
                 'web': {
                     'build': '.',
-                    'restart': 'yes', #TODO: optional, add to documentation en Wiki
                     'volumes': ['./www:/var/www/html']
                 }
             }
         }
+        # Set restart if provided
+        if 'restart' in args:
+            data['services']['web']['restart'] = args['restart']
         # Set ports if provided
         if 'ports' in args:
             data['services']['web']['ports'] = args['ports']
