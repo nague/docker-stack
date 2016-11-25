@@ -72,7 +72,10 @@ class Config(object):
         array['docker']['sites'] = []
         array['docker']['vhost'] = []
         if type(webserver['vhost']) is dict:
-            array['docker']['vhost'] = webserver['vhost']['available'] + webserver['vhost']['enable']
+            if 'available' in webserver['vhost']:
+                array['docker']['vhost'].extend(webserver['vhost']['available'])
+            if 'enable' in webserver['vhost']:
+                array['docker']['vhost'].extend(webserver['vhost']['enable'])
             for key, value in webserver['vhost'].items():
                 if key == 'enable':
                     for site in value:
