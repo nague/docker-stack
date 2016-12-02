@@ -1,3 +1,4 @@
+import hashlib
 import os
 import errno
 import yaml
@@ -11,18 +12,38 @@ class Config(object):
 
     # Properties
     data = []
+    updated = False
 
     # ===========
     # Constructor
     # ===========
-    def __init__(self, path):
+    def __init__(self, path, checksum_file):
         self.config_path = path
 
         # Load data from YAML file
         with open(self.config_path, 'r') as stream:
             self.data = yaml.load(stream)
 
+        self.checksum_md5_config_file(checksum_file)
+
         self.env = Environment(loader=PackageLoader('dockerstack', 'templates'))
+
+    # =================================================
+    # Checking MD5 checksum for `docker-stack.yml` file
+    # =================================================
+    def checksum_md5_config_file(self, checksum_file):
+        hash_md5 = hashlib.md5(open(self.config_path, 'rb').read()).hexdigest()
+        if not os.path.exists(checksum_file):
+            config_dir = os.path.dirname(checksum_file)
+            if not os.path.isdir(config_dir):
+                os.makedirs(config_dir)
+            with open(checksum_file, 'w') as cfg:
+                cfg.write(hash_md5)
+        else:
+            md5 = open(checksum_file, 'r').read()
+            if md5 != hash_md5:
+                self.updated = True
+                os.remove(checksum_file)
 
     # =================
     # Parse config file

@@ -48,7 +48,7 @@ class Project(object):
 
         # Create projects directory, it will contains all docker-stack projects
         if not os.path.exists(self.PROJECTS_DIRECTORY):
-            print "================== Welcome to {} by {}  ==================".\
+            print "================== Welcome to {} by {}  ==================". \
                 format(dockerstack.__name__, dockerstack.__maintainer__)
             f = open(os.path.join(self.CURRENT_PATH, 'LICENSE.md'), 'r')
             content = f.read()
@@ -138,7 +138,8 @@ class Project(object):
         config_path = os.path.join(project_directory, self.SITE_DIRECTORY, self.config_file)
         if not os.path.exists(config_path):
             raise Exception("Error: '{}' not found ... aborting".format(self.config_file))
-        docker_stack_config = Config(config_path)
+        checksum_file = os.path.join(self.CONFIG_DIRECTORY, self.project_name, str(self.config_file) + '.md5')
+        docker_stack_config = Config(path=config_path, checksum_file=checksum_file)
         config = docker_stack_config.parse_config()
 
         # 6. Database
@@ -197,7 +198,7 @@ class Project(object):
             config['docker']['modules'] = set(config['docker']['modules'] + self.DEFAULT_MODULES)
         else:
             config['docker']['modules'] = self.DEFAULT_MODULES
-        if not os.path.exists(destination):
+        if not os.path.exists(destination) or docker_stack_config.updated is True:
             config['docker']['maintainer'] = dockerstack.__maintainer__
             config['docker']['extra'] = pre['dockerfile']
             builder.build_dockerfile(
@@ -205,18 +206,27 @@ class Project(object):
                 destination,
                 config['docker']
             )
-            print "Creating '{}' ... done".format(self.DOCKERFILE_FILE)
+            if docker_stack_config.updated is True:
+                print "Updating '{}' ... done".format(self.DOCKERFILE_FILE)
+            else:
+                print "Creating '{}' ... done".format(self.DOCKERFILE_FILE)
 
         # 12. Generate 'docker-compose.yml'
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
-        if not os.path.exists(destination):
+        if not os.path.exists(destination) or docker_stack_config.updated is True:
             builder.build_docker_compose(
                 destination,
                 config['docker-compose']
             )
-            print "Creating {} ... done".format(self.DOCKER_COMPOSE_FILE)
+            if docker_stack_config.updated is True:
+                print "Updating {} ... done".format(self.DOCKER_COMPOSE_FILE)
+            else:
+                print "Creating {} ... done".format(self.DOCKER_COMPOSE_FILE)
 
-        # 13. Force rebuild and recreate containers
+        # 13. Re-generate checksum MD5 file
+        docker_stack_config.checksum_md5_config_file(checksum_file)
+
+        # 14. Force rebuild and recreate containers
         if force_rebuild is True:
             print "Starting rebuilding containers ...\n"
             os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
@@ -224,7 +234,7 @@ class Project(object):
             self.compose_command.create(self.project_name, force=True)
             print "Containers rebuilding ... done"
 
-        # 14. Return project name
+        # 15. Return project name
         return self.project_name
 
     # =========================
