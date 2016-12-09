@@ -137,17 +137,3 @@ class Config(object):
             array['php']['timezone'] = php['timezone']
 
         return array
-
-    # ==================
-    # Build php.ini file
-    # ==================
-    def build_php_ini(self, source, destination):
-        tmpl = self.env.get_template(source)
-        if not os.path.exists(os.path.dirname(destination)):
-            try:
-                os.makedirs(os.path.dirname(destination))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
-        with open(destination, 'w') as f:
-            f.write(tmpl.render(timezone='test'))
