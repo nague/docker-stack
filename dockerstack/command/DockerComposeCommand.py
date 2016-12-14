@@ -45,9 +45,9 @@ class DockerComposeCommand(AbstractDockerCommand):
         for path in self._execute(command):
             print(path, end="")
 
-    # =========================
-    # Show version informations
-    # =========================
+    # ========================
+    # Show version information
+    # ========================
     def version(self):
         return subprocess.Popen([self.SUDO_CMD, self.DOCKER_COMPOSE_CMD, 'version'],
                                 stdout=subprocess.PIPE).stdout.read()
