@@ -1,6 +1,11 @@
+import os
+import docker
+
 from dockerstack.docopt_command import get_handler
 from dockerstack.utils import get_version_info
+from dockerstack.utils import clean_name
 from inspect import getdoc
+from prettytable import PrettyTable
 
 
 class StackCommand(object):
@@ -72,7 +77,19 @@ class StackCommand(object):
 
         Usage: ps [ARGS...]
         """
-        pass
+        home = os.path.join(os.path.expanduser('~'), 'DockerStackProjects')
+        dirnames = []
+        for dirname in os.listdir(home):
+            dirnames.append(clean_name(dirname))
+        client = docker.from_env()
+        containers = client.containers.list(all)
+        t = PrettyTable(['NAME', 'ID', 'STATUS'])
+        for container in containers:
+            container_name = container.name
+            container_name = container_name.split('_')
+            if container_name[0] in dirnames:
+                t.add_row([container.name, container.id, container.status])
+        print t
 
     # ==================================
     # Remove one or more projects method

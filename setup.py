@@ -33,7 +33,9 @@ install_requires = [
     'validators',
     'requests',
     'clint',
-    'PyYAML >= 3.08'
+    'PyYAML >= 3.08',
+    'docker',
+    'prettytable'
 ]
 
 setup(

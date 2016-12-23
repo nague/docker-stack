@@ -35,3 +35,8 @@ def get_version_info():
 # Get build version
 def get_build_version():
     return datetime.datetime.now().time()
+
+
+# Clean Docker Stack project name
+def clean_name(name):
+    return name.replace('-', '')
