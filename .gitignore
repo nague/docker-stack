@@ -93,3 +93,6 @@ ENV/
 # PyInstaller
 dockerstack/build/
 dockerstack/dist/
+
+# PyCharm
+.idea/

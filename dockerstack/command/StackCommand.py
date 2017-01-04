@@ -155,3 +155,27 @@ class StackCommand(object):
         Usage: version
         """
         print get_version_info()
+
+    # ==========================
+    # Update database
+    # ==========================
+    def updb(self, project, options):
+        """
+        Update database.
+
+        Usage: updb [options] [PROJECT_NAME]
+
+        Options:
+          -s, --service SERVICE       Specify an alternate service.
+        """
+        if options.get('PROJECT_NAME'):
+            project_name = options.get('PROJECT_NAME')
+        else:
+            project_name = raw_input("Please enter the project name: ")
+
+        if options.get('--service'):
+            service = options.get('--service')
+        else:
+            service = 'mysql'
+
+        project.update_database(project_name=project_name, service=service)

@@ -1,4 +1,6 @@
 import requests
+import yaml
+
 import dockerstack
 import os
 import re
@@ -14,6 +16,7 @@ from dockerstack.utils import yesno
 from git import Repo
 
 from dockerstack.command.DockerComposeCommand import DockerComposeCommand
+from dockerstack.command.DockerCommand import DockerCommand
 from dockerstack.Config import Config
 from dockerstack.Builder import Builder
 from dockerstack.Progress import Progress
@@ -36,6 +39,7 @@ class Project(object):
     project_name = None
     config_file = 'docker-stack.yml'
     compose_command = DockerComposeCommand()
+    docker_command = DockerCommand()
     platform = Default()
 
     # ===========
@@ -151,7 +155,7 @@ class Project(object):
                 print "Creating directory '{}' ... done\n".format(os.path.join('projects', self.project_name, 'db'))
 
             # Get database file(s)
-            self._get_database_files(config['db'], db_dir, project_directory)
+            self._get_database_files(config['db'], db_dir, project_directory, config)
 
         # 7. Find current platform from config file
         if 'platform' in config['docker']:
@@ -337,3 +341,40 @@ class Project(object):
                         destination
                     )
                     print "Updating database file ... done\n"
+                    self.update_database(self.project_name)
+                    print "Updating database ... done\n"
+
+    # ==========================================
+    # Update database
+    # ==========================================
+    def update_database(self, project_name, service):
+        project_root = os.path.join(self.PROJECTS_DIRECTORY, project_name)
+        compose_file = os.path.join(project_root, self.DOCKER_COMPOSE_FILE)
+        sql_file = os.path.join(project_root, 'db', project_name + '.sql')
+
+        # Load data from docker compose YAML file
+        with open(compose_file, 'r') as stream:
+            config = yaml.load(stream)
+
+        # Check which parameters are available and set mysql credentials depending on
+        if config['services']['mysql']['environment'].has_key('MYSQL_DATABASE'):
+            mysql_db = config['services']['mysql']['environment']['MYSQL_DATABASE']
+        else:
+            mysql_db = raw_input("Please enter the database name: ")
+
+        if config['services']['mysql']['environment'].has_key('MYSQL_USER'):
+            mysql_user = config['services']['mysql']['environment']['MYSQL_USER']
+            mysql_pwd = config['services']['mysql']['environment']['MYSQL_PASSWORD']
+        else:
+            mysql_user = 'root'
+            mysql_pwd = config['services']['mysql']['environment']['MYSQL_ROOT_PASSWORD']
+
+        # Move at root project directory
+        os.chdir(project_root)
+
+        # Construct the command to run
+        command = ['mysql', '--user', '"' + mysql_user + '"', '--password', '"' + mysql_pwd + '"', mysql_db, '<', sql_file]
+        command = ['mysql', '--version']
+        command = ' '.join(command)
+
+        self.docker_command.execute(project_name, service, command)
