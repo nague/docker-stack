@@ -12,7 +12,6 @@ class AbstractDockerCommand(object):
     # ===========================================
     @staticmethod
     def _execute(cmd):
-        print ' '.join(cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
         stdout_lines = iter(p.stdout.readline, "")
         for stdout_line in stdout_lines:

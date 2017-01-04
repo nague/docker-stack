@@ -373,8 +373,7 @@ class Project(object):
         os.chdir(project_root)
 
         # Construct the command to run
-        command = ['mysql', '--user', '"' + mysql_user + '"', '--password', '"' + mysql_pwd + '"', mysql_db, '<', sql_file]
-        command = ['mysql', '--version']
+        command = ['mysql', '-u' + mysql_user, '-p' + mysql_pwd, mysql_db, '<', sql_file]
         command = ' '.join(command)
 
         self.docker_command.execute(project_name, service, command)
