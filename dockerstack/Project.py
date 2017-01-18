@@ -1,25 +1,29 @@
-import requests
-import yaml
-
-import dockerstack
+from __future__ import print_function
+import datetime
 import os
 import re
 import shutil
+import time
 
+import requests
 import validators
+import yaml
+import pymysql
+import subprocess
+
 from clint.textui import progress
+from git import Repo
+
+import dockerstack
+from dockerstack.Builder import Builder
+from dockerstack.Config import Config
+from dockerstack.Progress import Progress
+from dockerstack.command.DockerComposeCommand import DockerComposeCommand
 from dockerstack.platform.Default import Default
 from dockerstack.platform.EzPublish import EzPublish
 from dockerstack.platform.Symfony import Symfony
 from dockerstack.platform.WordPress import WordPress
 from dockerstack.utils import yesno
-from git import Repo
-
-from dockerstack.command.DockerComposeCommand import DockerComposeCommand
-from dockerstack.command.DockerCommand import DockerCommand
-from dockerstack.Config import Config
-from dockerstack.Builder import Builder
-from dockerstack.Progress import Progress
 
 
 class Project(object):
@@ -39,7 +43,6 @@ class Project(object):
     project_name = None
     config_file = 'docker-stack.yml'
     compose_command = DockerComposeCommand()
-    docker_command = DockerCommand()
     platform = Default()
 
     # ===========
@@ -52,13 +55,13 @@ class Project(object):
 
         # Create projects directory, it will contains all docker-stack projects
         if not os.path.exists(self.PROJECTS_DIRECTORY):
-            print "================== Welcome to {} by {}  ==================". \
-                format(dockerstack.__name__, dockerstack.__maintainer__)
+            print("================== Welcome to {} by {}  ==================".
+                  format(dockerstack.__name__, dockerstack.__maintainer__))
             f = open(os.path.join(self.CURRENT_PATH, 'LICENSE.md'), 'r')
             content = f.read()
-            print content
+            print(content)
             f.close()
-            print "===================================================================================="
+            print("====================================================================================")
             validation = yesno("Do you agree to terms? [y/n]: ")
             if validation is True:
                 os.makedirs(self.PROJECTS_DIRECTORY)
@@ -83,7 +86,7 @@ class Project(object):
         # Start using `docker-compose up` command
         self.compose_command.start(self.project_name)
         # After starting container, execute post processing commands
-        print "Running post-processing scripts\n"
+        print("Running post-processing scripts\n")
         self.platform.post_processing(self.compose_command)
 
     # ================
@@ -106,26 +109,26 @@ class Project(object):
 
         # 4. Symlink existing sources or Git clone project to self.SITE_DIRECTORY directory
         if not os.path.exists(os.path.join(project_directory, self.SITE_DIRECTORY)):
-            print 'Please choose one of the following:'
-            print ' 1. Create a Symlink from existing sources (default)'
-            print ' 2. Cloning a Git repository'
+            print('Please choose one of the following:')
+            print(' 1. Create a Symlink from existing sources (default)')
+            print(' 2. Cloning a Git repository')
             cloning = raw_input('Enter your choose now: ') or 1
-            print "\n"
+            print("\n")
             if int(cloning) is 1:
                 source = raw_input("Please provide the full path of your sources directory (e.g. using 'pwd'):\n")
-                print "We are about to create a symlink from '{}' to '{}'\n".format(
+                print("We are about to create a symlink from '{}' to '{}'\n".format(
                     source,
                     os.path.join(project_directory, self.SITE_DIRECTORY)
-                )
+                ))
                 validation = yesno("Do you want to continue [Y/n]: ", default=True)
                 if validation is True:
                     os.symlink(source, os.path.join(project_directory, self.SITE_DIRECTORY))
-                    print "Creating symlink ... done\n"
+                    print("Creating symlink ... done\n")
             else:
                 source = raw_input('Please provide a Git valid URL (http or ssh): ')
                 branch = raw_input(
                     'From witch branch do you want to clone the repository (default: master): ') or 'master'
-                print "We are about to clone your repo '{}' from branch '{}'\n".format(source, branch)
+                print("We are about to clone your repo '{}' from branch '{}'\n".format(source, branch))
                 validation = yesno("Do you want to continue [Y/n]: ", default=True)
                 if validation is True:
                     Repo.clone_from(
@@ -134,7 +137,7 @@ class Project(object):
                         branch=branch,
                         progress=Progress()
                     )
-                    print "Cloning Git repository ... done\n"
+                    print("Cloning Git repository ... done\n")
                 else:
                     raise Exception("Aborting ...")
 
@@ -152,7 +155,7 @@ class Project(object):
             db_dir = os.path.join(project_directory, 'db')
             if not os.path.exists(db_dir):
                 os.makedirs(db_dir)
-                print "Creating directory '{}' ... done\n".format(os.path.join('projects', self.project_name, 'db'))
+                print("Creating directory '{}' ... done\n".format(os.path.join('projects', self.project_name, 'db')))
 
             # Get database file(s)
             self._get_database_files(config['db'], db_dir, project_directory, config)
@@ -173,13 +176,13 @@ class Project(object):
         destination = os.path.join(conf_php_path, self.PHP_INI_FILE)
         if not os.path.isdir(conf_php_path):
             os.makedirs(conf_php_path)
-            print "Creating '{}' directory ... done".format(conf_php_path)
+            print("Creating '{}' directory ... done".format(conf_php_path))
         if not os.path.exists(destination):
             builder.build_php_ini(
                 destination,
                 config['php']
             )
-            print "Creating '{}' ... done".format(self.PHP_INI_FILE)
+            print("Creating '{}' ... done".format(self.PHP_INI_FILE))
 
         # 10. Copy virtual host file
         destination_directory = os.path.join(project_directory, 'conf', 'apache2', 'sites-available')
@@ -190,7 +193,7 @@ class Project(object):
             destination_path = os.path.join(destination_directory, os.path.basename(vhost))
             if not os.path.exists(destination_path):
                 shutil.copyfile(source_path, destination_path)
-                print "Copy virtual host files '{}' ... done".format(vhost)
+                print("Copy virtual host files '{}' ... done".format(vhost))
 
         # 11. Generate 'Dockerfile'
         destination = os.path.join(project_directory, self.DOCKERFILE_FILE)
@@ -211,9 +214,9 @@ class Project(object):
                 config['docker']
             )
             if docker_stack_config.updated is True:
-                print "Updating '{}' ... done".format(self.DOCKERFILE_FILE)
+                print("Updating '{}' ... done".format(self.DOCKERFILE_FILE))
             else:
-                print "Creating '{}' ... done".format(self.DOCKERFILE_FILE)
+                print("Creating '{}' ... done".format(self.DOCKERFILE_FILE))
 
         # 12. Generate 'docker-compose.yml'
         destination = os.path.join(project_directory, self.DOCKER_COMPOSE_FILE)
@@ -223,20 +226,20 @@ class Project(object):
                 config['docker-compose']
             )
             if docker_stack_config.updated is True:
-                print "Updating {} ... done".format(self.DOCKER_COMPOSE_FILE)
+                print("Updating {} ... done".format(self.DOCKER_COMPOSE_FILE))
             else:
-                print "Creating {} ... done".format(self.DOCKER_COMPOSE_FILE)
+                print("Creating {} ... done".format(self.DOCKER_COMPOSE_FILE))
 
         # 13. Re-generate checksum MD5 file
         docker_stack_config.checksum_md5_config_file(checksum_file)
 
         # 14. Force rebuild and recreate containers
         if force_rebuild is True:
-            print "Starting rebuilding containers ...\n"
+            print("Starting rebuilding containers ...\n")
             os.chdir(os.path.join(self.PROJECTS_DIRECTORY, self.project_name))
             self.compose_command.build(self.project_name)
             self.compose_command.create(self.project_name, force=True)
-            print "Containers rebuilding ... done"
+            print("Containers rebuilding ... done")
 
         # 15. Return project name
         return self.project_name
@@ -254,7 +257,7 @@ class Project(object):
             # Stop containers
             os.chdir(project_path)
             self.compose_command.stop(self.project_name)
-            print "Stopping '{}' project ... done".format(self.project_name)
+            print("Stopping '{}' project ... done".format(self.project_name))
         else:
             raise Exception("No such project: '{}'".format(self.project_name))
 
@@ -273,9 +276,9 @@ class Project(object):
                     self.compose_command.rm(project)
                 # Remove project directory
                 shutil.rmtree(project_path)
-                print "Removing '{}' project ... done".format(project)
+                print("Removing '{}' project ... done".format(project))
             else:
-                print "No such project: '{}'".format(project)
+                print("No such project: '{}'".format(project))
 
     # ==========================================
     # Get platform class from configuration file
@@ -319,7 +322,7 @@ class Project(object):
                                     f.write(chunk)
                                     f.flush()
                 else:
-                    print "Error: {}".format(r.reason)
+                    print("Error: {}".format(r.reason))
             else:
                 source = os.path.join(project_directory, self.SITE_DIRECTORY, p)
                 # Check database source file exists
@@ -327,12 +330,12 @@ class Project(object):
                     raise Exception("Database file '{}' does not exists ... aborting".format(source))
                 # Copy database file to 'db' directory if not exists already
                 if not os.path.exists(destination):
-                    print "Database file '{}' found".format(os.path.basename(p))
+                    print("Database file '{}' found".format(os.path.basename(p)))
                     shutil.copyfile(
                         source,
                         destination
                     )
-                    print "Copying database file ... done\n"
+                    print("Copying database file ... done\n")
                 # Updating database file if source has been updated
                 elif not os.path.getsize(destination) == os.path.getsize(source):
                     os.remove(destination)
@@ -340,17 +343,16 @@ class Project(object):
                         source,
                         destination
                     )
-                    print "Updating database file ... done\n"
+                    print("Updating database file ... done\n")
                     self.update_database(self.project_name)
-                    print "Updating database ... done\n"
+                    print("Updating database ... done\n")
 
     # ==========================================
-    # Update database
+    # Get database credentials and info
     # ==========================================
-    def update_database(self, project_name, service):
+    def _get_database_info(self, project_name):
         project_root = os.path.join(self.PROJECTS_DIRECTORY, project_name)
         compose_file = os.path.join(project_root, self.DOCKER_COMPOSE_FILE)
-        sql_file = os.path.join(project_root, 'db', project_name + '.sql')
 
         # Load data from docker compose YAML file
         with open(compose_file, 'r') as stream:
@@ -369,11 +371,43 @@ class Project(object):
             mysql_user = 'root'
             mysql_pwd = config['services']['mysql']['environment']['MYSQL_ROOT_PASSWORD']
 
-        # Move at root project directory
-        os.chdir(project_root)
+        return {'user': mysql_user, 'pwd': mysql_pwd, 'db': mysql_db}
 
-        # Construct the command to run
-        command = ['mysql', '-u' + mysql_user, '-p' + mysql_pwd, mysql_db, '<', sql_file]
-        command = ' '.join(command)
+    # ==========================================
+    # Get container IP
+    # ==========================================
+    def _get_container_ip(self, project_name, container_name):
+        cmd = "docker inspect --format '{{ .NetworkSettings.Networks." + project_name + "_default.IPAddress }}' "\
+              + container_name
+        ip = os.popen(cmd).read()
+        return ip
 
-        self.docker_command.execute(project_name, service, command)
+    # ==========================================
+    # Update database
+    # ==========================================
+    def update_database(self, project_name, service=''):
+        project_root = os.path.join(self.PROJECTS_DIRECTORY, project_name)
+        db_file = os.path.join(project_root, 'db/' + project_name + '.sql')
+        reader = open(db_file, 'r')
+        sql = " ".join(reader.readlines())
+        start = time.time()
+        db_info = self._get_database_info(project_name)
+        container_name = project_name + '_' + service + '_1'
+        ip = self._get_container_ip(project_name, container_name)
+
+        print("Start executing: " + db_file + " at " + str(
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M")) + "\n" + sql)
+
+        connection = pymysql.connect(
+            host=ip,
+            user=db_info['user'],
+            passwd=db_info['pwd'],
+            db=db_info['db']
+        )
+        cursor = connection.cursor()
+        cursor.execute(sql)
+
+        connection.commit()
+        end = time.time()
+        print("Time elapsed to run the query:")
+        print(str((end - start) * 1000) + ' ms')

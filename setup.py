@@ -35,7 +35,8 @@ install_requires = [
     'clint',
     'PyYAML >= 3.08',
     'docker',
-    'prettytable'
+    'prettytable',
+    'pymysql'
 ]
 
 setup(
